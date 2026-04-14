@@ -1,0 +1,54 @@
+/* ═══════════════════════════════════════════════════════════
+   ADMIN — BRANDS
+   resources/css/admin/brands.css
+   ═══════════════════════════════════════════════════════════ */
+
+/* --- brands/index.blade.php --- */
+.search-bar {
+position: relative;
+display: flex;
+align-items: center;
+}
+.search-bar i {
+position: absolute;
+left: 12px;
+color: var(--text-muted);
+font-size: 13px;
+pointer-events: none;
+}
+.search-bar input {
+padding: 8px 14px 8px 34px;
+background: var(--surface2);
+border: 1px solid var(--border);
+border-radius: 999px;
+color: var(--text);
+font-size: 13px;
+font-family: inherit;
+outline: none;
+width: 200px;
+transition: all 0.2s;
+}
+.search-bar input:focus {
+width: 240px;
+border-color: #00bcd4;
+background: var(--surface);
+box-shadow: 0 0 0 3px rgba(0,188,212,0.1);
+}
+.search-bar input::placeholder { color: var(--text-muted); }
+
+@media (max-width: 768px) {
+div[style*="grid-template-columns:1fr 360px"] {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+}
+.table-wrap { display: none !important; }
+.mobile-brands { display: block !important; }
+.card-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+}
+.search-bar, .search-bar input { width: 100% !important; }
+.form-control { font-size: 16px !important; }
+}

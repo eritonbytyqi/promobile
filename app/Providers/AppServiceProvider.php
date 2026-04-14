@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\URL;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+  public function boot()
+    {
+        if (config('app.env') === 'production') {
+            URL::forceScheme('https');
+        }
+          request()->setTrustedProxies(
+        ['127.0.0.1', '::1'],
+        \Illuminate\Http\Request::HEADER_X_FORWARDED_FOR |
+        \Illuminate\Http\Request::HEADER_X_FORWARDED_HOST |
+        \Illuminate\Http\Request::HEADER_X_FORWARDED_PORT |
+        \Illuminate\Http\Request::HEADER_X_FORWARDED_PROTO
+    );
+    }
+}

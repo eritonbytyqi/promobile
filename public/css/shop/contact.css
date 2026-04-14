@@ -1,0 +1,255 @@
+/* ═══════════════════════════════════════════════════════════
+   SHOP — CONTACT
+   resources/css/shop/contact.css
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+    --ct:       #006980;
+    --ct-light: #e6f6f8;
+    --ct-mid:   #b3dde4;
+    --ct-dark:  #005068;
+    --ct-ink:   #111827;
+    --ct-muted: #6b7280;
+    --ct-line:  #e8edf0;
+    --ct-soft:  #f8fbfc;
+    --ct-shadow: 0 4px 20px rgba(0,105,128,0.07);
+}
+
+.contact-page {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 24px 72px;
+}
+
+/* ── HERO ── */
+.ct-hero {
+    text-align: center;
+    padding: 20px 0 32px;
+}
+
+.ct-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--ct-light);
+    color: var(--ct);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    margin-bottom: 14px;
+}
+
+.ct-hero h1 {
+    font-size: 34px;
+    font-weight: 800;
+    color: var(--ct-ink);
+    letter-spacing: -0.8px;
+    margin: 0 0 10px;
+}
+
+.ct-hero p {
+    color: var(--ct-muted);
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0 auto;
+    max-width: 440px;
+}
+
+/* ── ALERT ── */
+.ct-alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 18px;
+    background: var(--ct-light);
+    border: 1px solid var(--ct-mid);
+    border-radius: 12px;
+    color: var(--ct-dark);
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 22px;
+}
+
+/* ── INFO BAR ── */
+.ct-info-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.ct-info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    background: #fff;
+    border: 1px solid var(--ct-line);
+    border-radius: 16px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.18s, transform 0.18s;
+}
+
+a.ct-info-item:hover {
+    border-color: var(--ct-mid);
+    transform: translateY(-2px);
+}
+
+.ct-info-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    background: var(--ct-light);
+    color: var(--ct);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+}
+
+.ct-info-label {
+    font-size: 10.5px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.6px;
+    color: var(--ct); margin-bottom: 3px;
+}
+
+.ct-info-value {
+    font-size: 13.5px; font-weight: 600;
+    color: var(--ct-ink); line-height: 1.4;
+}
+
+/* ── MAIN GRID ── */
+.ct-main {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: 20px;
+    align-items: start;
+}
+
+/* ── CARD ── */
+.ct-card {
+    background: #fff;
+    border: 1px solid var(--ct-line);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--ct-shadow);
+    margin-bottom: 16px;
+}
+
+.ct-card:last-child { margin-bottom: 0; }
+
+.ct-card-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--ct-line);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ct-ink);
+    background: var(--ct-soft);
+}
+
+.ct-card-head i { color: var(--ct); font-size: 14px; }
+
+.ct-card-body {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ── LOCATION ── */
+.ct-location {
+    border: 1px solid var(--ct-line);
+    border-radius: 14px;
+    overflow: hidden;
+}
+
+.ct-location-info { padding: 16px 18px; }
+
+.ct-location-name {
+    font-size: 15px; font-weight: 800;
+    color: var(--ct-ink); margin-bottom: 5px;
+}
+
+.ct-location-addr {
+    font-size: 13.5px; color: var(--ct-muted);
+    line-height: 1.6; margin-bottom: 8px;
+}
+
+.ct-location-phone {
+    display: inline-flex; align-items: center; gap: 5px;
+    color: var(--ct); font-size: 13.5px; font-weight: 700;
+    text-decoration: none;
+}
+.ct-location-phone:hover { opacity: 0.8; }
+
+.ct-map { border-top: 1px solid var(--ct-line); }
+.ct-map iframe { width: 100%; height: 200px; border: 0; display: block; }
+
+/* ── SIDE ── */
+.ct-side { display: flex; flex-direction: column; }
+
+/* ── HOURS ── */
+.ct-hours-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 14px;
+    border-radius: 10px;
+    background: var(--ct-soft);
+    border: 1px solid var(--ct-line);
+    font-size: 13.5px;
+}
+
+.ct-hours-row span:first-child { color: var(--ct-ink); font-weight: 600; }
+.ct-hours-row span:last-child  { color: var(--ct); font-weight: 700; }
+
+/* ── SOCIAL ── */
+.ct-social { display: flex; gap: 10px; flex-wrap: wrap; }
+
+.ct-social-btn {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 9px 18px; border-radius: 999px;
+    border: 1.5px solid var(--ct-line);
+    background: #fff; color: var(--ct-ink);
+    font-size: 13px; font-weight: 700; text-decoration: none;
+    transition: all 0.18s;
+}
+
+.ct-social-btn:hover {
+    border-color: var(--ct);
+    color: var(--ct);
+    background: var(--ct-light);
+}
+
+/* ── EXTRA LINKS ── */
+.ct-extra-link {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--ct-line);
+    background: var(--ct-soft);
+    color: var(--ct-ink); text-decoration: none;
+    font-size: 13.5px; font-weight: 600;
+    transition: border-color 0.18s;
+}
+
+.ct-extra-link i { color: var(--ct); width: 16px; text-align: center; }
+.ct-extra-link:hover { border-color: var(--ct-mid); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+    .ct-main { grid-template-columns: 1fr; }
+    .ct-side { flex-direction: row; flex-wrap: wrap; gap: 16px; }
+    .ct-side .ct-card { flex: 1; min-width: 260px; margin-bottom: 0; }
+}
+
+@media (max-width: 600px) {
+    .contact-page { padding: 24px 14px 56px; }
+    .ct-hero h1 { font-size: 26px; }
+    .ct-info-bar { grid-template-columns: 1fr 1fr; }
+    .ct-side { flex-direction: column; }
+    .ct-side .ct-card { min-width: unset; }
+}

@@ -1,0 +1,471 @@
+/* ═══════════════════════════════════════════════════════════
+   SHOP — PRODUCTS
+   resources/css/shop/products.css
+   ═══════════════════════════════════════════════════════════ */
+
+.shop-wrap {
+    padding: 0 5%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* ── PAGE HEADER ── */
+.shop-header { margin-bottom: 36px; }
+.shop-header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+}
+.shop-header h1 span {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.shop-header p { color: var(--text-muted); font-size: 14px; }
+
+/* ── FILTERS BAR ── */
+.filters-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+}
+.filters-bar::-webkit-scrollbar { display: none; }
+
+.filters-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.filter-chip {
+    padding: 8px 14px;
+    border-radius: 30px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    flex-shrink: 0;
+}
+.filter-chip:hover { border-color: #006980; color: #006980; }
+.filter-chip.active { background: #006980; border-color: #006980; color: white; }
+
+.filter-sep {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    flex-shrink: 0;
+}
+
+.sort-wrapper {
+    flex-shrink: 0;
+    margin-left: auto;
+    padding-left: 8px;
+}
+
+.sort-select {
+    padding: 8px 32px 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236e6e90'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    background-size: 18px;
+    white-space: nowrap;
+}
+
+/* ── BRANDS BAR ── */
+.brands-border {
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+}
+
+.brands-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+    overflow: visible;
+    scrollbar-width: none;
+    padding-bottom: 16px;
+}
+.brands-bar::-webkit-scrollbar { display: none; }
+
+.brand-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-soft);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    cursor: pointer;
+    transition: border-color 0.2s, color 0.2s, background 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.brand-chip:hover { border-color: #006980; color: #006980; }
+.brand-chip.active { background: #111; border-color: #111; color: #fff; }
+
+/* ── BRAND DROPDOWN ── */
+.brand-dd-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+/* ── BRAND DROPDOWN ── */
+.brand-dd-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+    min-width: 150px;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    opacity: 0;
+    pointer-events: none; /* ← mos merr klikime kur mbyllur */
+    transform: translateY(-6px) scale(0.97);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.brand-dd-wrap.open .brand-dd-menu {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0) scale(1);
+}
+.brand-dd-wrap.open .brand-dd-menu {
+    display: flex;          /* ← SHTO KËTË */
+}
+
+.brand-dd-item {
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-soft);
+    text-decoration: none;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    display: block;
+}
+.brand-dd-item:hover { background: var(--surface2); color: var(--text); }
+.brand-dd-item.active { background: rgba(0,105,128,0.10); color: #006980; font-weight: 600; }
+
+/* ── PRODUCT GRID ── */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 18px;
+}
+
+.product-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    transition: all 0.25s ease;
+    position: relative;
+    animation: fadeUp 0.4s ease both;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(124,111,255,0.35);
+    box-shadow: 0 16px 44px rgba(0,0,0,0.35);
+}
+
+.product-img {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    position: relative;
+    background: var(--surface2);
+}
+.product-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+.product-card:hover .product-img img { transform: scale(1.06); }
+
+.product-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--border);
+    font-size: 44px;
+}
+
+.product-badges {
+    position: absolute;
+    top: 10px; left: 10px;
+    display: flex; flex-direction: column; gap: 5px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+.badge-featured { background: #006980; color: white; }
+.badge-sale { background: rgba(0,229,160,0.15); border: 1px solid rgba(0,229,160,0.3); color: var(--accent3); }
+
+.product-info {
+    padding: 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-cat {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+     color: #006980;
+    margin-bottom: 5px;
+}
+
+.product-brand {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-left: 6px;
+}
+
+.product-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.product-price {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+}
+.product-price .old {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-decoration: line-through;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 400;
+    display: block;
+    line-height: 1;
+}
+
+.add-btn {
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    background: #006980;
+    border: none;
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+.add-btn:hover { background: #005068; transform: scale(1.1); }
+.add-btn.added { background: var(--accent3); }
+
+/* ── COLORS ── */
+.product-colors {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+}
+.product-color-dot {
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.14);
+    display: inline-block;
+}
+
+/* ── WISHLIST BTN ── */
+.pm-wish-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.30);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.22s cubic-bezier(.4,0,.2,1);
+    z-index: 3;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+.pm-wish-btn:hover { background: rgba(255,255,255,0.30); border-color: rgba(255,255,255,0.50); transform: scale(1.10); }
+.pm-wish-btn.saved { background: #ff3b30; border-color: #ff3b30; color: white; text-shadow: none; }
+.pm-wish-btn.saved:hover { background: #e02d22; border-color: #e02d22; transform: scale(1.10); }
+
+@keyframes heartPop {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.40); }
+    70%  { transform: scale(0.88); }
+    100% { transform: scale(1); }
+}
+.pm-wish-btn.pop { animation: heartPop 0.32s cubic-bezier(.4,0,.2,1) forwards; }
+
+/* ── WISHLIST CARDS ── */
+#wishlistGrid .product-card { max-width: 100%; }
+#wishlistGrid .product-img { aspect-ratio: 1; max-height: 220px; }
+
+/* ── EMPTY ── */
+.empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+}
+.empty-state i { font-size: 52px; display: block; margin-bottom: 16px; opacity: 0.3; }
+.empty-state h3 { font-family: 'Syne', sans-serif; font-size: 20px; color: var(--text-soft); margin-bottom: 8px; }
+
+/* ── PAGINATION ── */
+.pagination-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 48px;
+}
+.page-btn {
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-soft);
+    text-decoration: none;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.page-btn:hover { border-color: #006980; color: #006980; }
+.page-btn.active { background: #006980; border-color: #006980; color: white; }
+
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+    from { opacity:0; transform: translateY(16px); }
+    to   { opacity:1; transform: translateY(0); }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+    .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .filters-bar { gap: 6px; }
+}
+@media (max-width: 600px) {
+    .filters-bar { flex-direction: column; align-items: stretch; overflow-x: visible; gap: 8px; }
+    .filters-left { display: flex; overflow-x: auto; scrollbar-width: none; gap: 8px; padding-bottom: 2px; }
+    .filters-left::-webkit-scrollbar { display: none; }
+    .filter-sep { display: none; }
+    .sort-wrapper { margin-left: 0; padding-left: 0; }
+    .sort-select { width: 100%; }
+}
+@media (max-width: 768px) {
+    .shop-wrap { padding-bottom: 0 !important; }
+}
+.brand-dd-item {
+    padding: 8px 12px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: var(--text-soft) !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    display: block !important;
+    transition: all 0.15s ease !important;
+}
+.brand-dd-item:hover {
+    background: var(--surface2) !important;
+    color: var(--text) !important;
+}
+.brand-dd-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 6px;
+    min-width: 150px;
+    z-index: 9999;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+
+    /* ── ANIMACION ── */
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+    transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.brand-dd-wrap.open .brand-dd-menu {
+    display: flex;
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+.brand-chip .fa-chevron-down {
+    transition: transform 0.2s ease;
+}
+.brand-dd-wrap.open .brand-chip .fa-chevron-down {
+    transform: rotate(180deg);
+}

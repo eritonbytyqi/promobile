@@ -1,0 +1,399 @@
+/* ═══════════════════════════════════════════════════════════
+   ADMIN — STOCK
+   resources/css/admin/stock.css
+   ═══════════════════════════════════════════════════════════ */
+
+/* --- Stock/index.blade.php --- */
+/* ══════════════════════════════
+LIGHT MODE OVERRIDE
+══════════════════════════════ */
+body, .main, .page-content {
+ background: #f5f5f7 !important;
+ color: #1d1d1f !important;
+}
+.sidebar {
+ background: #ffffff !important;
+ border-right: 1px solid rgba(0,0,0,0.08) !important;
+}
+.sidebar-nav a { color: #6e6e73 !important; }
+.sidebar-nav a:hover { background: #f5f5f7 !important; color: #1d1d1f !important; }
+.sidebar-nav a.active { background: rgba(124,111,255,0.1) !important; color: #7c6fff !important; }
+.topbar {
+ background: rgba(255,255,255,0.85) !important;
+ border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+}
+.topbar-breadcrumb, .topbar-breadcrumb a { color: #8e8e93 !important; }
+.topbar-icon-btn {
+ background: #ffffff !important;
+ border-color: rgba(0,0,0,0.1) !important;
+ color: #6e6e73 !important;
+}
+.topbar-hamburger {
+ background: #ffffff !important;
+ border-color: rgba(0,0,0,0.1) !important;
+ color: #6e6e73 !important;
+}
+.sidebar-label { color: #aeaeb2 !important; }
+.sidebar-footer a { color: #aeaeb2 !important; }
+.sidebar-logo-text { color: #1d1d1f !important; }
+
+/* ── STATS ── */
+.st-stats {
+ display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;
+}
+.st-stat {
+ background:#ffffff;border:1px solid rgba(0,0,0,0.08);
+ border-radius:12px;padding:14px 16px;
+ display:flex;align-items:center;gap:12px;
+}
+.st-stat-icon {
+ width:36px;height:36px;border-radius:9px;
+ display:flex;align-items:center;justify-content:center;
+ font-size:14px;flex-shrink:0;
+}
+.st-stat-num { font-family:'Syne',sans-serif;font-size:22px;font-weight:800;line-height:1;color:#1d1d1f; }
+.st-stat-lbl { font-size:11px;color:#8e8e93;margin-top:2px; }
+
+/* ── TOOLBAR ── */
+.st-toolbar {
+ display:flex;align-items:center;justify-content:space-between;
+ gap:12px;margin-bottom:16px;flex-wrap:wrap;
+}
+.st-filters { display:flex;gap:6px;flex-wrap:wrap; }
+.st-filter {
+ padding:5px 14px;border-radius:20px;border:1px solid rgba(0,0,0,0.1);
+ background:#ffffff;color:#6e6e73;font-size:12px;
+ font-weight:500;cursor:pointer;text-decoration:none;transition:all 0.15s;
+ display:inline-flex;align-items:center;gap:5px;
+}
+.st-filter:hover { border-color:#7c6fff;color:#7c6fff; }
+.st-filter.active { background:#7c6fff;border-color:#7c6fff;color:white; }
+.st-filter.warn.active { background:#ff9500;border-color:#ff9500;color:white; }
+.st-filter.danger.active { background:#ff3b30;border-color:#ff3b30;color:white; }
+
+.st-search { display:flex;gap:6px; }
+.st-search input {
+ padding:6px 12px;border-radius:8px;border:1px solid rgba(0,0,0,0.1);
+ background:#ffffff;color:#1d1d1f;font-size:13px;
+ outline:none;width:180px;transition:border-color 0.2s;
+}
+.st-search input:focus { border-color:#7c6fff; }
+.st-search .btn { background:#7c6fff;color:white;border:none; }
+
+/* ── ACCORDION CARDS ── */
+.st-cards { display:flex;flex-direction:column;gap:8px; }
+
+.st-card {
+ background:#ffffff;
+ border:1px solid rgba(0,0,0,0.08);
+ border-radius:14px;
+ overflow:hidden;
+ transition:border-color 0.2s;
+}
+.st-card:hover { border-color:rgba(124,111,255,0.3); }
+.st-card.open { border-color:rgba(124,111,255,0.5); }
+
+.st-card-row {
+ display:grid;
+ grid-template-columns:40px 1fr auto auto auto;
+ align-items:center;
+ gap:14px;
+ padding:14px 18px;
+ cursor:pointer;
+ user-select:none;
+ transition:background 0.15s;
+}
+.st-card-row:hover { background:#f5f5f7; }
+.st-card.open .st-card-row { background:#f5f5f7; }
+
+.st-card-img {
+ width:40px;height:40px;border-radius:9px;
+ background:#f5f5f7;
+ display:flex;align-items:center;justify-content:center;
+ color:#d1d1d6;font-size:16px;overflow:hidden;flex-shrink:0;
+}
+.st-card-img img { width:100%;height:100%;object-fit:cover; }
+
+.st-card-name { font-weight:700;font-size:14px;color:#1d1d1f; }
+.st-card-sub  { font-size:11px;color:#8e8e93;margin-top:2px; }
+
+.st-card-total {
+ font-family:'Syne',sans-serif;
+ font-size:20px;font-weight:800;
+ white-space:nowrap;
+}
+
+.st-mini-badges { display:flex;gap:5px;flex-wrap:wrap; }
+.st-mini-badge {
+ padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;
+}
+.st-mini-badge.ok  { background:rgba(52,199,89,0.12);color:#1a7a1a; }
+.st-mini-badge.low { background:rgba(255,149,0,0.12);color:#a05a00; }
+.st-mini-badge.out { background:rgba(255,59,48,0.12);color:#c0392b; }
+
+.st-chevron {
+ color:#8e8e93;font-size:12px;
+ transition:transform 0.25s;flex-shrink:0;
+}
+.st-card.open .st-chevron { transform:rotate(180deg); }
+
+.st-dropdown {
+ display:none;
+ border-top:1px solid rgba(0,0,0,0.06);
+}
+.st-card.open .st-dropdown { display:block; }
+
+/* ── DESKTOP: header kolonave ── */
+.st-drop-head {
+ display:grid;
+ grid-template-columns:18px 1fr 90px 110px 150px 70px;
+ gap:12px;
+ padding:8px 18px;
+ background:#f9f9f9;
+ border-bottom:1px solid rgba(0,0,0,0.06);
+}
+.st-drop-head span {
+ font-size:10px;font-weight:700;letter-spacing:1px;
+ text-transform:uppercase;color:#aeaeb2;
+}
+
+/* ── DESKTOP: rreshti variantit ── */
+.st-var-row {
+ display:grid;
+ grid-template-columns:18px 1fr 90px 110px 150px 70px;
+ gap:12px;
+ align-items:center;
+ padding:10px 18px;
+ border-bottom:1px solid rgba(0,0,0,0.05);
+ transition:background 0.15s;
+}
+.st-var-row:last-child { border-bottom:none; }
+.st-var-row:hover { background:#fafafa; }
+
+.st-simple-row {
+ display:grid;
+ grid-template-columns:1fr 90px 110px 150px 70px;
+ gap:12px;
+ align-items:center;
+ padding:10px 18px;
+ border-top:1px solid rgba(0,0,0,0.05);
+}
+
+.st-dot {
+ width:14px;height:14px;border-radius:50%;
+ border:1.5px solid rgba(0,0,0,0.1);flex-shrink:0;
+}
+
+.st-badge {
+ padding:2px 9px;border-radius:20px;
+ font-size:11px;font-weight:600;white-space:nowrap;display:inline-block;
+}
+.st-badge.ok  { background:rgba(52,199,89,0.12);color:#1a7a1a; }
+.st-badge.low { background:rgba(255,149,0,0.12);color:#a05a00; }
+.st-badge.out { background:rgba(255,59,48,0.12);color:#c0392b; }
+
+.st-ctrl {
+ display:flex;align-items:center;
+ background:#f5f5f7;border:1px solid rgba(0,0,0,0.1);
+ border-radius:8px;overflow:hidden;
+}
+.st-ctrl-btn {
+ width:26px;height:30px;background:none;border:none;
+ color:#8e8e93;cursor:pointer;font-size:10px;
+ display:flex;align-items:center;justify-content:center;transition:all 0.15s;
+}
+.st-ctrl-btn:hover { background:rgba(0,0,0,0.06);color:#1d1d1f; }
+.st-ctrl-inp {
+ width:44px;height:30px;text-align:center;border:none;
+ background:none;color:#1d1d1f;
+ font-family:'Syne',sans-serif;font-size:14px;font-weight:700;outline:none;
+}
+.st-save {
+ padding:5px 12px;border-radius:7px;background:#7c6fff;
+ color:white;border:none;font-size:11px;font-weight:600;
+ cursor:pointer;transition:all 0.15s;white-space:nowrap;
+}
+.st-save:hover { opacity:0.85; }
+.st-save.saved { background:#34c759; }
+
+/* Historia butoni */
+a[href*="history"] {
+ color:#8e8e93 !important;
+ border-color:rgba(0,0,0,0.1) !important;
+ background:#f5f5f7 !important;
+}
+
+/* ══════════════════════════════
+MOBILE
+══════════════════════════════ */
+@media (max-width: 768px) {
+ .st-stats { grid-template-columns:repeat(2,1fr); gap:8px; }
+ .st-stat  { padding:12px; }
+ .st-stat-num { font-size:18px; }
+
+ /* Toolbar stack */
+ .st-toolbar { flex-direction:column; align-items:stretch; gap:10px; }
+ .st-filters { justify-content:flex-start; }
+ .st-filter  { font-size:11px; padding:5px 10px; }
+ .st-search  { width:100%; }
+ .st-search input { flex:1; width:100%; }
+
+ /* Card header — stack në mobile */
+ .st-card-row {
+     grid-template-columns:36px 1fr auto;
+     grid-template-rows:auto auto;
+     gap:8px;
+     padding:12px 14px;
+ }
+
+ /* Foto — rreshti 1, kolona 1 */
+ .st-card-img { width:36px;height:36px; }
+
+ /* Emri — rreshti 1, kolona 2 */
+ .st-card-name { font-size:13px; }
+ .st-card-sub  { font-size:10px; }
+
+ /* Chevron — rreshti 1, kolona 3 */
+ .st-chevron { grid-column:3; grid-row:1; }
+
+ /* Total stoku — fshihet sepse shihet brenda */
+ .st-card-total { display:none; }
+
+ /* Mini badges — rreshti 2, span të gjitha kolonat */
+ .st-mini-badges { grid-column:1/-1; }
+
+ /* Historia — fshihet nga header, do ta tregojmë brenda */
+ a[href*="history"] { display:none !important; }
+
+ /* DROPDOWN MOBILE — stack si karta */
+ .st-drop-head { display:none; }
+
+ .st-var-row {
+     display:flex;
+     flex-direction:column;
+     align-items:stretch;
+     gap:10px;
+     padding:14px;
+     border-bottom:1px solid rgba(0,0,0,0.06);
+ }
+
+ /* Emri variantit + badge në një rresht */
+ .st-var-row > div:nth-child(2) {
+     display:flex;align-items:center;
+     justify-content:space-between;
+     flex-wrap:wrap;gap:6px;
+ }
+
+ /* Çmimi fshihet — shihet te header */
+ .st-var-row > div:nth-child(3) { display:none; }
+
+ /* Controls + Ruaj në një rresht */
+ .st-var-row .st-ctrl { flex:1; }
+ .st-var-row {
+     display:grid;
+     grid-template-columns:auto 1fr auto auto;
+     grid-template-rows:auto auto;
+     gap:8px 10px;
+     padding:12px 14px;
+ }
+
+ /* Dot — col 1 row 1 */
+ .st-var-row > div:nth-child(1) { grid-column:1; grid-row:1; align-self:center; }
+ /* Emri — col 2-3 row 1 */
+ .st-var-row > div:nth-child(2) { grid-column:2/4; grid-row:1; }
+ /* Çmimi — fshij */
+ .st-var-row > div:nth-child(3) { display:none; }
+ /* Badge — col 4 row 1 */
+ .st-var-row .st-badge { grid-column:4; grid-row:1; align-self:center; }
+ /* Controls — col 1-3 row 2 */
+ .st-var-row .st-ctrl { grid-column:1/4; grid-row:2; }
+ /* Ruaj — col 4 row 2 */
+ .st-var-row .st-save { grid-column:4; grid-row:2; }
+
+ /* Simple row (pa variante) */
+ .st-simple-row {
+     display:grid;
+     grid-template-columns:1fr auto auto;
+     grid-template-rows:auto auto;
+     gap:8px 10px;
+     padding:12px 14px;
+ }
+ .st-simple-row > div:nth-child(1) { grid-column:1/-1; color:#8e8e93;font-size:12px; }
+ .st-simple-row > div:nth-child(2) { display:none; }
+ .st-simple-row .st-badge { grid-column:3; grid-row:2; align-self:center; }
+ .st-simple-row .st-ctrl  { grid-column:1/3; grid-row:2; }
+ .st-simple-row .st-save  { grid-column:3; grid-row:2; }
+
+ /* Controls madhësi më e madhe */
+ .st-ctrl { height:36px; }
+ .st-ctrl-btn { width:32px;height:36px; }
+ .st-ctrl-inp { width:50px;height:36px;font-size:16px; }
+ .st-save { padding:0 12px;height:36px;font-size:12px; }
+}
+
+@media (max-width: 480px) {
+ .st-stats { grid-template-columns:repeat(2,1fr); gap:6px; }
+ .st-stat-num { font-size:16px; }
+ .st-stat-lbl { font-size:10px; }
+ .st-stat-icon { width:30px;height:30px;font-size:12px; }
+ .st-card-row { padding:10px 12px; }
+ .st-filter { font-size:10px; padding:4px 8px; }
+}
+
+/* --- Stock/History.blade.php --- */
+.hist-header {
+display:flex;align-items:center;gap:16px;
+background:var(--surface);border:1px solid var(--border);
+border-radius:14px;padding:16px 20px;margin-bottom:20px;
+}
+.hist-img {
+width:52px;height:52px;border-radius:10px;
+object-fit:cover;background:var(--surface2);
+display:flex;align-items:center;justify-content:center;
+color:var(--border);font-size:20px;overflow:hidden;flex-shrink:0;
+}
+.hist-img img { width:100%;height:100%;object-fit:cover; }
+.hist-name { font-size:18px;font-weight:800;font-family:'Syne',sans-serif; }
+.hist-sub  { font-size:12px;color:var(--text-muted);margin-top:3px; }
+
+/* TABLE */
+.hist-table {
+width:100%;border-collapse:collapse;
+background:var(--surface);border:1px solid var(--border);
+border-radius:14px;overflow:hidden;
+}
+.hist-table thead tr {
+background:var(--surface2);border-bottom:1px solid var(--border);
+}
+.hist-table th {
+padding:10px 16px;text-align:left;
+font-size:10px;font-weight:700;letter-spacing:1px;
+text-transform:uppercase;color:var(--text-muted);
+}
+.hist-table tbody tr {
+border-bottom:1px solid var(--border);transition:background 0.15s;
+}
+.hist-table tbody tr:last-child { border-bottom:none; }
+.hist-table tbody tr:hover { background:var(--surface2); }
+.hist-table td { padding:11px 16px;font-size:13px;vertical-align:middle; }
+
+/* Badge tipi */
+.type-badge {
+padding:2px 9px;border-radius:20px;
+font-size:11px;font-weight:600;white-space:nowrap;
+}
+.type-badge.ok   { background:rgba(0,229,160,0.12);color:var(--accent3); }
+.type-badge.low  { background:rgba(255,149,0,0.12);color:#ff9500; }
+.type-badge.out  { background:rgba(248,113,113,0.12);color:var(--danger); }
+.type-badge.blue { background:rgba(124,111,255,0.12);color:var(--accent); }
+
+/* Sasia */
+.qty-plus { color:var(--accent3);font-weight:700; }
+.qty-minus { color:var(--danger);font-weight:700; }
+
+/* Dot ngjyrë */
+.c-dot {
+width:12px;height:12px;border-radius:50%;
+border:1px solid var(--border);display:inline-block;
+vertical-align:middle;margin-right:5px;
+}

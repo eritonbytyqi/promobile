@@ -1,0 +1,115 @@
+/* ═══════════════════════════════════════════════════════════
+   SHOP — PAYMENT
+   resources/css/shop/payment.css
+   ═══════════════════════════════════════════════════════════ */
+
+/* --- client/Order/stripe-payment.blade.php --- */
+.payment-wrap {
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 48px 24px 80px;
+}
+.payment-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+.payment-header h1 {
+    font-size: 26px; font-weight: 800;
+    color: var(--text); letter-spacing: -0.5px; margin-bottom: 6px;
+}
+.payment-header p { font-size: 14px; color: var(--text-muted); }
+
+.payment-card {
+    background: var(--surface);
+    border: 1px solid var(--border-solid);
+    border-radius: var(--radius-2xl);
+    padding: 2rem;
+    margin-bottom: 1rem;
+}
+.payment-card-title {
+    font-size: 13px; font-weight: 700; color: var(--text);
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 8px;
+}
+.payment-card-title .material-symbols-outlined { font-size: 17px; color: var(--primary); }
+
+/* Order summary mini */
+.order-mini { margin-bottom: 1.5rem; }
+.order-mini-row {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--text-soft);
+    padding: 6px 0; border-bottom: 1px solid var(--border-solid);
+}
+.order-mini-row:last-child { border-bottom: none; }
+.order-mini-row.total {
+    font-size: 16px; font-weight: 800; color: var(--text);
+    padding-top: 12px;
+}
+.order-mini-row.total span:last-child { color: var(--primary); }
+
+/* Stripe element */
+#card-element {
+    padding: 13px 14px;
+    border: 1.5px solid var(--border-solid);
+    border-radius: 12px;
+    background: var(--surface);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+#card-element.StripeElement--focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(0,89,181,0.1);
+}
+#card-element.StripeElement--invalid { border-color: var(--error); }
+
+#card-errors {
+    color: var(--error); font-size: 12px;
+    margin-top: 8px; display: flex; align-items: center; gap: 4px;
+}
+
+.stripe-label {
+    font-size: 11.5px; font-weight: 600;
+    color: var(--text-soft); margin-bottom: 6px; display: block;
+}
+
+.pay-btn {
+    width: 100%; padding: 15px;
+    background: var(--text); color: white; border: none;
+    border-radius: var(--radius-full);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: opacity 0.2s, transform 0.2s; margin-top: 1.25rem;
+}
+.pay-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+.pay-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.secure-note {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 12px; color: var(--text-muted); margin-top: 12px;
+}
+
+/* Test cards info */
+.test-cards {
+    background: var(--primary-fixed);
+    border: 1px solid var(--primary-dim);
+    border-radius: 12px; padding: 14px 16px;
+    margin-bottom: 1rem;
+}
+.test-cards-title {
+    font-size: 12px; font-weight: 700; color: var(--primary);
+    margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+}
+.test-card-row {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--primary);
+    padding: 3px 0; font-family: monospace;
+}
+
+/* Spinner */
+.spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white; border-radius: 50%;
+    animation: spin 0.7s linear infinite; display: none;
+}
+@keyframes spin { to { transform: rotate(360deg); } }

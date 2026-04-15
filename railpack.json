@@ -1,6 +1,0 @@
-{
-    "php": {
-        "version": "8.3",
-        "extensions": ["pdo_mysql", "zip", "mbstring", "xml", "curl", "gd", "bcmath"]
-    }
-}

@@ -23,9 +23,8 @@ RUN mkdir -p storage/framework/cache \
     bootstrap/cache
 
 RUN chmod -R 775 storage bootstrap/cache
-
-RUN echo "FORCE_REBUILD_123"
+RUN chmod +x start.sh
 
 EXPOSE 8080
 
-CMD sh -c "echo STARTING_APP && php artisan optimize:clear && php artisan migrate --force && php artisan migrate:status && php artisan serve --host=0.0.0.0 --port=${PORT:-8080}"
+CMD ["sh", "start.sh"]

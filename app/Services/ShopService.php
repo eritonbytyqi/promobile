@@ -8,15 +8,20 @@ use App\Models\Offer;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
-
+use Illuminate\Support\Facades\Schema;
 class ShopService
 {
 public function homeData(): array
 {
-    $accCat = Category::accessories()->first();
+    $hasCategories = Schema::hasTable('categories');
+    $hasBanners = Schema::hasTable('banners');
+    $hasOffers = Schema::hasTable('offers');
+    $hasProducts = Schema::hasTable('products');
+
+    $accCat = $hasCategories ? Category::accessories()->first() : null;
     $accCatId = $accCat?->id;
 
-    $accessories = $accCat
+    $accessories = ($accCat && $hasProducts)
         ? $accCat->products()
             ->with(['images', 'category'])
             ->where('is_active', true)
@@ -26,27 +31,48 @@ public function homeData(): array
         : collect();
 
     return [
-        'banners' => Banner::where('active', 1)->orderBy('sort_order')->get(),
-        'categories' => Category::orderBy('name')->get(),
-        'specialOffer' => Offer::where('is_active', true)->orderBy('sort_order')->latest()->first(),
-        'featured' => Product::with(['images', 'category', 'brand', 'variants'])
-            ->where('is_active', true)
-            ->where('featured', 1)
-            ->when($accCatId, fn($q) => $q->where('category_id', '!=', $accCatId))
-            ->latest()
-            ->take(8)
-            ->get(),
-        'latest' => Product::with(['images', 'category', 'brand', 'variants'])
-            ->where('is_active', true)
-            ->where('featured', 1)  
-            ->when($accCatId, fn($q) => $q->where('category_id', '!=', $accCatId))
-            ->latest()
-            ->take(8)
-            ->get(),
+        'banners' => $hasBanners
+            ? Banner::where('active', 1)->orderBy('sort_order')->get()
+            : collect(),
+
+        'categories' => $hasCategories
+            ? Category::orderBy('name')->get()
+            : collect(),
+
+        'specialOffer' => $hasOffers
+            ? Offer::where('is_active', true)->orderBy('sort_order')->latest()->first()
+            : null,
+
+        'featured' => $hasProducts
+            ? Product::with(['images', 'category', 'brand', 'variants'])
+                ->where('is_active', true)
+                ->where('featured', 1)
+                ->when($accCatId, fn($q) => $q->where('category_id', '!=', $accCatId))
+                ->latest()
+                ->take(8)
+                ->get()
+            : collect(),
+
+        'latest' => $hasProducts
+            ? Product::with(['images', 'category', 'brand', 'variants'])
+                ->where('is_active', true)
+                ->where('featured', 1)
+                ->when($accCatId, fn($q) => $q->where('category_id', '!=', $accCatId))
+                ->latest()
+                ->take(8)
+                ->get()
+            : collect(),
+
         'accessories' => $accessories,
         'accessoriesCategory' => $accCat,
-        'totalProducts' => Product::where('is_active', true)->count(),
-        'totalCategories' => Category::count(),
+
+        'totalProducts' => $hasProducts
+            ? Product::where('is_active', true)->count()
+            : 0,
+
+        'totalCategories' => $hasCategories
+            ? Category::count()
+            : 0,
     ];
 }
 

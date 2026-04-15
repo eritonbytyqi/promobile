@@ -24,7 +24,7 @@ RUN mkdir -p storage/framework/cache \
 
 RUN chmod -R 775 storage bootstrap/cache
 
-RUN echo "build-v2"
+RUN echo "FORCE_REBUILD_123"
 
 EXPOSE 8080
 

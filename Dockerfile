@@ -16,6 +16,12 @@ RUN composer install --optimize-autoloader --no-interaction --no-dev
 RUN npm ci
 RUN npm run build
 
+RUN mkdir -p storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    storage/logs \
+    bootstrap/cache
+
 RUN chmod -R 775 storage bootstrap/cache
 
 EXPOSE 8080

@@ -25,4 +25,4 @@ Thumbs.db
 serviceAccountKey.json
 public/*.json
 *.json
-
+public/*.json

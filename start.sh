@@ -2,13 +2,10 @@
 set -e
 
 echo "STARTING APP"
+echo "PORT=$PORT"
 
 php artisan optimize:clear
-php artisan config:clear
-php artisan cache:clear
-
 php artisan migrate --force
 
 echo "STARTING SERVER"
-
-php -S 0.0.0.0:$PORT -t public
+exec php artisan serve --host=0.0.0.0 --port=${PORT}

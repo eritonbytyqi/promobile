@@ -7,16 +7,8 @@ php artisan optimize:clear
 php artisan config:clear
 php artisan cache:clear
 
-echo "ENV DB CHECK"
-printenv | grep DB_
+php artisan migrate --force
 
-echo "MIGRATION STATUS BEFORE"
-php artisan migrate:status || true
+echo "STARTING SERVER"
 
-echo "RUN FRESH MIGRATIONS"
-php artisan migrate:fresh --force
-
-echo "MIGRATION STATUS AFTER"
-php artisan migrate:status || true
-
-php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
+php -S 0.0.0.0:$PORT -t public

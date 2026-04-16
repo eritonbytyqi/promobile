@@ -4,19 +4,15 @@ set -e
 echo "STARTING APP"
 echo "PORT=$PORT"
 
-# Clear & optimize
 php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
-
-# DB
 php artisan migrate --force
+
+echo "RUNNING SEED"
 php artisan db:seed --force
 
-# Storage link
 php artisan storage:link || true
-
-# Fix permissions
 chmod -R 775 storage bootstrap/cache
 
 echo "STARTING SERVER"

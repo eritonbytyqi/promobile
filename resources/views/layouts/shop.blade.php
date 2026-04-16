@@ -28,7 +28,7 @@
 <nav class="navbar">
 <div class="navbar-inner">
     <a href="{{ url('/') }}" class="nav-logo">
-        <img src="{{ asset('images/Logo.svg') }}" alt="ProMobile Logo">
+        <img src="{{ asset('images/logo.svg') }}" alt="ProMobile Logo">
     </a>
 </li>
      <ul class="nav-links">

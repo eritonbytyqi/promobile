@@ -8,7 +8,10 @@ echo "PORT=$PORT"
 php artisan optimize:clear
 php artisan config:cache
 php artisan route:cache
+
+# DB
 php artisan migrate --force
+php artisan db:seed --force
 
 # Storage link
 php artisan storage:link || true

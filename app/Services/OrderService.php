@@ -84,7 +84,9 @@ class OrderService
         } else {
             $this->stock->deductProductForOrder($request->product_id, $qty, $order->id);
         }
-
+  if ($order->customer_email) {
+        $this->sendConfirmationEmail($order);
+    }
         return $order;
     }
 

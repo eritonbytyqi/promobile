@@ -83,14 +83,11 @@
 
 </div>
 @endsection
-
-@push('scripts')
 <script src="https://js.stripe.com/v3/"></script>
 <script>
-    window.stripeKey = "{{ config('services.stripe.key') }}";
-    window.orderId = {{ $order->id }};
-    window.orderSuccessUrl = "{{ url('/orders/success/' . $order->id) }}";
-    window.orderTotal = "{{ number_format($order->total_amount, 2) }}";
+    window.stripeKey       = "{{ config('services.stripe.key') }}";
+    window.orderId         = "{{ $order->uuid }}";
+    window.orderSuccessUrl = "{{ url('/orders/success/' . $order->uuid) }}";
+    window.orderTotal      = "{{ number_format($order->total_amount, 2) }}";
 </script>
 <script src="{{ asset('js/shop/stripe-payment.js') }}"></script>
-@endpush

@@ -155,55 +155,42 @@ private function getFirebaseToken($serviceAccount)
         return redirect()->route('bank.sandbox', $order->uuid)->with('error', 'Pagesa dështoi.');
     }
 
-    public function sendContact(Request $request)
-    {
-        $request->validate([
-            'name'    => 'required|string|max:255',
-            'email'   => 'required|email',
-            'message' => 'required|string|min:10',
-        ]);
+ public function sendContact(Request $request)
+{
+    $request->validate([
+        'name'    => 'required|string|max:255',
+        'email'   => 'required|email',
+        'message' => 'required|string|min:10',
+    ]);
 
-     \Mail::html(
+    \Mail::html(
 '<table width="100%" cellpadding="0" cellspacing="0" style="background:#f9f9fb;padding:20px 0;">
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;">
   <tr>
     <td style="background:#00bcd4;padding:20px 24px;">
-      <h1 style="color:#ffffff;margin:0;font-size:20px;font-family:Arial,sans-serif;">🛒 Porosi e re!</h1>
+      <h1 style="color:#ffffff;margin:0;font-size:20px;font-family:Arial,sans-serif;">📩 Mesazh Kontakti!</h1>
     </td>
   </tr>
   <tr>
     <td style="padding:24px;font-family:Arial,sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
-          <td style="padding:8px 0;color:#717785;font-size:13px;">Klienti</td>
-          <td style="padding:8px 0;font-weight:bold;color:#1a1c1d;">'. ($order->customer_name ?? 'N/A') .'</td>
-        </tr>
-        <tr>
-          <td style="padding:8px 0;color:#717785;font-size:13px;">Telefoni</td>
-          <td style="padding:8px 0;font-weight:bold;color:#1a1c1d;">'. ($order->customer_phone ?? 'N/A') .'</td>
+          <td style="padding:8px 0;color:#717785;font-size:13px;">Emri</td>
+          <td style="padding:8px 0;font-weight:bold;color:#1a1c1d;">'. $request->name .'</td>
         </tr>
         <tr>
           <td style="padding:8px 0;color:#717785;font-size:13px;">Email</td>
-          <td style="padding:8px 0;font-weight:bold;color:#1a1c1d;">'. ($order->customer_email ?? 'N/A') .'</td>
-        </tr>
-        <tr>
-          <td style="padding:8px 0;color:#717785;font-size:13px;">Adresa</td>
-          <td style="padding:8px 0;font-weight:bold;color:#1a1c1d;">'. ($order->shipping_address ?? 'N/A') .', '. ($order->city ?? 'N/A') .'</td>
+          <td style="padding:8px 0;font-weight:bold;color:#1a1c1d;">'. $request->email .'</td>
         </tr>
         <tr>
           <td colspan="2" style="border-top:2px solid #e2e2e4;padding-top:12px;"></td>
         </tr>
         <tr>
-          <td style="padding:8px 0;color:#717785;font-size:13px;">Totali</td>
-          <td style="padding:8px 0;font-weight:bold;color:#00bcd4;font-size:20px;">'. ($order->total_amount ?? '0') .' €</td>
+          <td style="padding:8px 0;color:#717785;font-size:13px;">Mesazhi</td>
+          <td style="padding:8px 0;color:#1a1c1d;">'. nl2br($request->message) .'</td>
         </tr>
       </table>
-      <br>
-      <a href="'. url('/admin/orders/' . $order->uuid) .'" 
-         style="background:#00bcd4;color:#ffffff;padding:12px 24px;text-decoration:none;font-weight:bold;font-family:Arial,sans-serif;font-size:14px;">
-        Shiko Porosinë →
-      </a>
     </td>
   </tr>
   <tr>
@@ -214,10 +201,10 @@ private function getFirebaseToken($serviceAccount)
 </table>
 </td></tr>
 </table>',
-fn($m) => $m->to('bytyqieriton58@gmail.com')
-            ->subject('🛒 Porosi e re #' . ($order->order_number ?? ''))
-);
+        fn($m) => $m->to('bytyqieriton58@gmail.com')
+                    ->subject('📩 Kontakt nga ' . $request->name)
+    );
 
-        return redirect()->route('contact')->with('contact_success', true);
-    }
+    return redirect()->route('contact')->with('contact_success', true);
+}
 }

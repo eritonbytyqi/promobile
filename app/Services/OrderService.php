@@ -160,9 +160,9 @@ public function sendReceivedEmail(Order $order): void
         $this->handleCancellation($order);
     }
 
-    if ($newStatus === 'confirmed' && $oldStatus !== 'confirmed' && !$skipEmail) {
-        $this->sendConfirmationEmail($order);
-    }
+   if ($order->customer_email) {
+    $this->sendReceivedEmail($order);
+}
 }
 
     public function delete(Order $order): void

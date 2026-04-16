@@ -738,7 +738,7 @@ footer {
     .nav-search input:focus {
         width: 120px;
     }
-  
+  cart-btn { display: none; }
     .main-wrap { padding-bottom: 70px; }
     footer { margin-bottom: 70px; }
     .footer-inner { grid-template-columns: 1fr; gap: 28px; }

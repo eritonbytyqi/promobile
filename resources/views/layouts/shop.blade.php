@@ -124,6 +124,19 @@
             <span class="material-symbols-outlined" style="font-size:17px;">person</span>
             Profili im
         </a>
+        @if(auth()->user()->role === 'admin')
+<a href="{{ url('/admin') }}" style="
+    display:flex; align-items:center; gap:10px;
+    padding:12px 16px; text-decoration:none;
+    color:var(--primary); font-size:13px; font-weight:600;
+    background:var(--primary-fixed);
+    transition:background 0.15s;
+" onmouseover="this.style.background='var(--primary-dim)'"
+   onmouseout="this.style.background='var(--primary-fixed)'">
+    <span class="material-symbols-outlined" style="font-size:17px;">admin_panel_settings</span>
+    Admin Paneli
+</a>
+@endif
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" style="
@@ -274,6 +287,7 @@
     </script>
     @stack('scripts')
 <!-- BOTTOM NAV MOBILE -->
+<!-- BOTTOM NAV MOBILE -->
 <div class="bottom-nav">
     <div class="bottom-nav-inner">
         <a href="{{ url('/') }}" class="bottom-nav-item {{ request()->is('/') ? 'active' : '' }}">
@@ -287,10 +301,17 @@
             <span class="bottom-nav-badge" id="bottomNavWishCount" style="display:none;">0</span>
         </a>
 
-     <a href="{{ url('/profili-im') }}" class="bottom-nav-item {{ request()->is('profili-im') ? 'active' : '' }}">
-    <i class="fa-solid fa-bag-shopping"></i>
-    <span>Blerjet</span>
-</a>
+        @auth
+        <a href="{{ route('profile.index') }}" class="bottom-nav-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-user"></i>
+            <span>Profili</span>
+        </a>
+        @else
+        <a href="{{ route('login') }}" class="bottom-nav-item">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span>Hyr</span>
+        </a>
+        @endauth
 
         <button onclick="openCart()" class="bottom-nav-item">
             <i class="fa-solid fa-cart-shopping"></i>

@@ -168,12 +168,12 @@
                                         <div class="existing-img-actions">
                                             @if(!$img->is_primary)
                                                 <button type="button" class="img-action-btn img-action-primary"
-                                                        onclick='deleteImage(@json($img->id), @json($product->id))'>
+                                                        onclick='deleteImage(@json($img->id), @json($product->uuid))'>
                                                     <i class="fa-solid fa-star"></i> Kryesore
                                                 </button>
                                             @endif
                                             <button type="button" class="img-action-btn img-action-delete"
-                                                    onclick='deleteImage(@json($img->id), @json($product->id))'>
+                                                    onclick='setPrimary(@json($img->id), @json($product->uuid))'>
                                                 <i class="fa-solid fa-trash"></i> Fshi
                                             </button>
                                         </div>

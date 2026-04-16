@@ -4,8 +4,17 @@ set -e
 echo "STARTING APP"
 echo "PORT=$PORT"
 
+# Clear & optimize
 php artisan optimize:clear
+php artisan config:cache
+php artisan route:cache
 php artisan migrate --force
 
+# Storage link
+php artisan storage:link || true
+
+# Fix permissions
+chmod -R 775 storage bootstrap/cache
+
 echo "STARTING SERVER"
-exec php artisan serve --host=0.0.0.0 --port=${PORT}
+exec php -S 0.0.0.0:${PORT} -t public/

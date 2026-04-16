@@ -82,18 +82,85 @@ class ShopController extends Controller
     }
 // EMAIL NOTIFICATION te admin
 // EMAIL NOTIFICATION te admin
+// EMAIL NOTIFICATION te admin
 try {
-    \Mail::raw(
-        "🛒 POROSI E RE!\n\n" .
-        "Klienti: " . ($order->customer_name ?? 'N/A') . "\n" .
-        "Telefoni: " . ($order->customer_phone ?? 'N/A') . "\n" .
-        "Email: " . ($order->customer_email ?? 'N/A') . "\n" .
-        "Adresa: " . ($order->shipping_address ?? 'N/A') . "\n" .
-        "Qyteti: " . ($order->city ?? 'N/A') . "\n" .
-        "Totali: " . ($order->total_amount ?? '0') . " €\n\n" .
-        "Shiko porosinë: " . url('/admin/orders/' . $order->uuid),
-        fn($m) => $m->to('admin@promobile.com')
-                    ->subject('🛒 Porosi e re #' . ($order->order_number ?? ''))
+    $emailHtml = '
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="UTF-8"></head>
+    <body style="margin:0;padding:0;background:#f4f6fb;font-family:Inter,Arial,sans-serif;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f6fb;padding:32px 0;">
+    <tr><td align="center">
+    <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+      <tr>
+        <td style="background:linear-gradient(135deg,#0059b5 0%,#0071e3 100%);padding:32px 40px;text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🛒</div>
+          <h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:800;">Porosi e Re!</h1>
+          <p style="color:rgba(255,255,255,0.75);margin:6px 0 0;font-size:14px;">' . ($order->order_number ?? '') . '</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:32px 40px;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8f9ff;border-radius:14px;overflow:hidden;margin-bottom:24px;">
+            <tr>
+              <td style="padding:14px 20px;border-bottom:1px solid #eef0f8;">
+                <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#8b95b0;">Klienti</span><br>
+                <span style="font-size:15px;font-weight:700;color:#1a1c1d;">' . ($order->customer_name ?? 'N/A') . '</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:14px 20px;border-bottom:1px solid #eef0f8;">
+                <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#8b95b0;">Telefoni</span><br>
+                <span style="font-size:15px;font-weight:700;color:#1a1c1d;">' . ($order->customer_phone ?? 'N/A') . '</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:14px 20px;border-bottom:1px solid #eef0f8;">
+                <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#8b95b0;">Email</span><br>
+                <span style="font-size:15px;font-weight:700;color:#0059b5;">' . ($order->customer_email ?? 'N/A') . '</span>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:14px 20px;">
+                <span style="font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#8b95b0;">Adresa</span><br>
+                <span style="font-size:15px;font-weight:700;color:#1a1c1d;">' . ($order->shipping_address ?? 'N/A') . ', ' . ($order->city ?? 'N/A') . '</span>
+              </td>
+            </tr>
+          </table>
+          <table width="100%" cellpadding="0" cellspacing="0" style="background:linear-gradient(135deg,#0059b5,#0071e3);border-radius:14px;margin-bottom:28px;">
+            <tr>
+              <td style="padding:20px 24px;">
+                <span style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,0.7);">Totali</span><br>
+                <span style="font-size:32px;font-weight:800;color:#ffffff;">' . number_format($order->total_amount, 2) . ' €</span>
+              </td>
+            </tr>
+          </table>
+          <table width="100%" cellpadding="0" cellspacing="0">
+            <tr>
+              <td align="center">
+                <a href="' . url('/admin/orders/' . $order->uuid) . '"
+                   style="display:inline-block;background:#1a1c1d;color:#ffffff;padding:14px 36px;border-radius:999px;font-size:14px;font-weight:700;text-decoration:none;">
+                  Shiko Porosinë →
+                </a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="background:#f8f9ff;padding:20px 40px;text-align:center;border-top:1px solid #eef0f8;">
+          <p style="color:#8b95b0;font-size:12px;margin:0;">ProMobile Store · Sistemi i Porosive</p>
+        </td>
+      </tr>
+    </table>
+    </td></tr>
+    </table>
+    </body>
+    </html>';
+
+    \Mail::html($emailHtml, fn($m) => $m
+        ->to('bytyqieriton58@gmail.com')
+        ->subject('🛒 Porosi e re #' . ($order->order_number ?? ''))
     );
     \Log::info('Email u dërgua te admin!');
 } catch (\Exception $e) {

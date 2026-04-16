@@ -553,8 +553,24 @@ footer {
 }
 .cs-checkout-btn:hover { opacity: 0.85; transform: translateY(-1px); color: white; }
 
+/* ── CART SIDEBAR MOBILE ── */
 @media (max-width: 480px) {
-    .cs-sidebar { width: 100vw; border-radius: 20px 20px 0 0; top: auto; height: 90vh; }
+    .cs-sidebar {
+        width: 100vw;
+        border-radius: 20px 20px 0 0;
+        top: auto;
+        bottom: 0;
+        height: 90vh;
+        transform: translateY(100%);
+    }
+    
+    .cs-sidebar.open {
+        transform: translateY(0);
+    }
+    
+    .cs-footer {
+        padding-bottom: calc(20px + env(safe-area-inset-bottom));
+    }
 }
 
 .bp-bg {

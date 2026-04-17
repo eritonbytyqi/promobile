@@ -54,12 +54,21 @@ class OrdersController extends Controller
         ]);
 
         $order = $this->orders->createManual($request);
-
-        return redirect()
-            ->route('admin.orders.show', $order->uuid)
-            ->with('success', 'Porosia u krijua!');
+ try {
+        \Mail::html(
+            view('emails.admin-new-order', ['order' => $order])->render(),
+            fn($m) => $m
+                ->to(config('mail.from.address'))
+                ->subject('🛍️ Porosi e Re #' . $order->id . ' — ' . $order->customer_name)
+        );
+    } catch (\Exception $e) {
+        \Log::error('Admin email error: ' . $e->getMessage());
     }
 
+    return redirect()
+        ->route('admin.orders.show', $order->uuid)
+        ->with('success', 'Porosia u krijua!');
+}
    public function update(Request $request, string $uuid)
 {
     $request->validate(['status' => 'required|string']);

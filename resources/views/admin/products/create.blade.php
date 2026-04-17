@@ -167,13 +167,15 @@
                                         @endif
                                         <div class="existing-img-actions">
                                             @if(!$img->is_primary)
+                                                {{-- ✅ FIX 1: setPrimary te butoni "Kryesore" --}}
                                                 <button type="button" class="img-action-btn img-action-primary"
-                                                        onclick='deleteImage(@json($img->id), @json($product->uuid))'>
+                                                        onclick='setPrimary(@json($img->id), @json($product->uuid))'>
                                                     <i class="fa-solid fa-star"></i> Kryesore
                                                 </button>
                                             @endif
+                                            {{-- ✅ FIX 1: deleteImage te butoni "Fshi" --}}
                                             <button type="button" class="img-action-btn img-action-delete"
-                                                    onclick='setPrimary(@json($img->id), @json($product->uuid))'>
+                                                    onclick='deleteImage(@json($img->id), @json($product->uuid))'>
                                                 <i class="fa-solid fa-trash"></i> Fshi
                                             </button>
                                         </div>
@@ -215,6 +217,7 @@
                             : collect();
                     @endphp
 
+
                         @if($groupedVariants->count() > 0)
                         @foreach($groupedVariants as $colorKey => $colorVariants)
                         @php
@@ -231,27 +234,16 @@
 
                                     <div style="flex:1;">
                                         <label class="form-label" style="margin-bottom:6px;">Ngjyra</label>
-
-                                        {{-- Ngjyrat e shpejta --}}
-                                        <!-- <div class="quick-colors">
-                                            @foreach(['#000000','#ffffff','#c0c0c0','#ffd700','#ff6b35','#e74c3c','#2ecc71','#3498db','#9b59b6','#1abc9c'] as $qc)
-                                                <span class="quick-color" style="background:{{ $qc }};"
-                                                      onclick="document.getElementById('colorHex_{{ $vi }}').value='{{ $qc }}'; updateSwatch({{ $vi }}, '{{ $qc }}');"
-                                                      title="{{ $qc }}"></span>
-                                            @endforeach
-                                        </div> -->
-
-                                   <div class="color-picker-row">
-                                       <input type="color"
-                                              id="colorHex_{{ $vi }}"
-                                              name="variants[{{ $vi }}][color_hex]"
-                                              value="{{ $firstVariant->color_hex ?? '#ff0000' }}"
-                                              oninput="updateSwatch({{ $vi }}, this.value)">
-                                   
-                                       <input type="hidden"
-                                              name="variants[{{ $vi }}][color_name]"
-                                              value="">
-                                   </div>
+                                        <div class="color-picker-row">
+                                            <input type="color"
+                                                   id="colorHex_{{ $vi }}"
+                                                   name="variants[{{ $vi }}][color_hex]"
+                                                   value="{{ $firstVariant->color_hex ?? '#ff0000' }}"
+                                                   oninput="updateSwatch({{ $vi }}, this.value)">
+                                            <input type="hidden"
+                                                   name="variants[{{ $vi }}][color_name]"
+                                                   value="{{ $firstVariant->color_name ?? '' }}">
+                                        </div>
                                     </div>
 
                                     <button type="button" class="rm-btn" onclick='removeVariant(@json($vi))'>
@@ -277,11 +269,12 @@
                                                     class="btn btn-success-soft btn-sm">
                                                 <i class="fa-solid fa-plus"></i> Shto Foto
                                             </button>
+                                            {{-- ✅ FIX 2: onchange + addColorPhotos (jo oninput + updateSwatch) --}}
                                             <input type="file"
                                                    id="colorPhotoInput_{{ $vi }}"
                                                    name="variants[{{ $vi }}][images][]"
                                                    accept="image/*" multiple hidden
-                                                   oninput='updateSwatch(@json($vi), this.value)'>
+                                                   onchange='addColorPhotos(this, {{ $vi }})'>
                                         </div>
                                         <div class="color-photos-grid" id="colorPhotosGrid_{{ $vi }}">
                                             @foreach($colorImages as $imgIdx => $varImg)
@@ -332,69 +325,71 @@
                                         </div>
                                         <div class="storage-col-headers">
                                             <span>Storage</span>
-                                            <!-- <span>Bazë (€)</span> -->
                                             <span>Shtesë (€)</span>
                                             <span>Totali</span>
                                             <span>Stoku</span>
                                             <span></span>
                                         </div>
-                                        @foreach($colorVariants as $si => $sv)
-                                        <div class="storage-row" id="storageRow_{{ $vi }}_{{ $si }}">
-                                            <select name="variants[{{ $vi }}][storages][{{ $si }}][storage]" class="form-select">
-                                                <option value="">— Zgjedh —</option>
-                                                @foreach(['64GB','128GB','256GB','512GB','1TB','2TB'] as $opt)
-                                                    <option value="{{ $opt }}" {{ ($sv->storage ?? '') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
-                                                @endforeach
-                                                @if(!in_array($sv->storage ?? '', ['','64GB','128GB','256GB','512GB','1TB','2TB']))
-                                                    <option value="{{ $sv->storage }}" selected>{{ $sv->storage }}</option>
+                                        {{-- ✅ FIX 3: wrapper div me id="storageRows_{{ $vi }}" - mungonte në edit mode! --}}
+                                        <div class="storage-rows" id="storageRows_{{ $vi }}">
+                                            @foreach($colorVariants as $si => $sv)
+                                            <div class="storage-row" id="storageRow_{{ $vi }}_{{ $si }}">
+                                                <select name="variants[{{ $vi }}][storages][{{ $si }}][storage]" class="form-select">
+                                                    <option value="">— Zgjedh —</option>
+                                                    @foreach(['64GB','128GB','256GB','512GB','1TB','2TB'] as $opt)
+                                                        <option value="{{ $opt }}" {{ ($sv->storage ?? '') === $opt ? 'selected' : '' }}>{{ $opt }}</option>
+                                                    @endforeach
+                                                    @if(!in_array($sv->storage ?? '', ['','64GB','128GB','256GB','512GB','1TB','2TB']))
+                                                        <option value="{{ $sv->storage }}" selected>{{ $sv->storage }}</option>
+                                                    @endif
+                                                </select>
+
+                                                @if($si === 0)
+                                                    <input type="number" step="0.01"
+                                                           name="variants[{{ $vi }}][storages][{{ $si }}][base_price]"
+                                                           class="form-control storage-base"
+                                                           id="basePrice_{{ $vi }}"
+                                                           value="{{ $sv->base_price ?? '' }}"
+                                                           placeholder="999.00"
+                                                           oninput='syncBasePrice(@json($vi)); calcTotal(@json($vi), @json($si))'>
+                                                @else
+                                                    <div style="font-size:12px;color:var(--text-muted);align-self:center;padding:0 4px;">
+                                                        <i class="fa-solid fa-arrow-turn-down-right" style="font-size:10px;"></i>
+                                                        <span id="baseDisplay_{{ $vi }}_{{ $si }}" style="font-weight:600;">
+                                                            {{ ($sv->base_price ?? 0) > 0 ? number_format($sv->base_price, 2) . ' €' : '—' }}
+                                                        </span>
+                                                    </div>
+                                                    <input type="hidden"
+                                                           name="variants[{{ $vi }}][storages][{{ $si }}][base_price]"
+                                                           id="basePriceHidden_{{ $vi }}_{{ $si }}"
+                                                           value="{{ $sv->base_price ?? 0 }}">
                                                 @endif
-                                            </select>
 
-                                            @if($si === 0)
                                                 <input type="number" step="0.01"
-                                                       name="variants[{{ $vi }}][storages][{{ $si }}][base_price]"
-                                                       class="form-control storage-base"
-                                                       id="basePrice_{{ $vi }}"
-                                                       value="{{ $sv->base_price ?? '' }}"
-                                                       placeholder="999.00"
-                                                       oninput='syncBasePrice(@json($vi)); calcTotal(@json($vi), @json($si))'>
-                                            @else
-                                                <div style="font-size:12px;color:var(--text-muted);align-self:center;padding:0 4px;">
-                                                    <i class="fa-solid fa-arrow-turn-down-right" style="font-size:10px;"></i>
-                                                    <span id="baseDisplay_{{ $vi }}_{{ $si }}" style="font-weight:600;">
-                                                        {{ $sv->base_price > 0 ? number_format($sv->base_price, 2) . ' €' : '—' }}
-                                                    </span>
+                                                       name="variants[{{ $vi }}][storages][{{ $si }}][extra_price]"
+                                                       class="form-control"
+                                                       value="{{ $sv->extra_price ?? 0 }}"
+                                                       placeholder="+0.00"
+                                                       oninput='calcTotal(@json($vi), @json($si))'>
+
+                                                <div style="font-size:13px;color:#059669;font-weight:700;align-self:center;"
+                                                     id="total_{{ $vi }}_{{ $si }}">
+                                                    @php $t = ($sv->base_price ?? 0) + ($sv->extra_price ?? 0); @endphp
+                                                    {{ $t > 0 ? number_format($t, 2) . ' €' : '—' }}
                                                 </div>
-                                                <input type="hidden"
-                                                       name="variants[{{ $vi }}][storages][{{ $si }}][base_price]"
-                                                       id="basePriceHidden_{{ $vi }}_{{ $si }}"
-                                                       value="{{ $sv->base_price ?? 0 }}">
-                                            @endif
 
-                                            <input type="number" step="0.01"
-                                                   name="variants[{{ $vi }}][storages][{{ $si }}][extra_price]"
-                                                   class="form-control"
-                                                   value="{{ $sv->extra_price ?? 0 }}"
-                                                   placeholder="+0.00"
-                                                 oninput='calcTotal(@json($vi), @json($si))'>
+                                                <input type="number"
+                                                       name="variants[{{ $vi }}][storages][{{ $si }}][stock]"
+                                                       class="form-control"
+                                                       value="{{ $sv->stock ?? 0 }}"
+                                                       placeholder="0">
 
-                                            <div style="font-size:13px;color:#059669;font-weight:700;align-self:center;"
-                                                 id="total_{{ $vi }}_{{ $si }}">
-                                                @php $t = ($sv->base_price ?? 0) + ($sv->extra_price ?? 0); @endphp
-                                                {{ $t > 0 ? number_format($t, 2) . ' €' : '—' }}
+                                                <button type="button" class="rm-btn-sm" onclick="removeStorageRow(this)">
+                                                    <i class="fa-solid fa-xmark"></i>
+                                                </button>
                                             </div>
-
-                                            <input type="number"
-                                                   name="variants[{{ $vi }}][storages][{{ $si }}][stock]"
-                                                   class="form-control"
-                                                   value="{{ $sv->stock ?? 0 }}"
-                                                   placeholder="0">
-
-                                            <button type="button" class="rm-btn-sm" onclick="removeStorageRow(this)">
-                                                <i class="fa-solid fa-xmark"></i>
-                                            </button>
-                                        </div>
-                                        @endforeach
+                                            @endforeach
+                                        </div>{{-- /storageRows_{{ $vi }} --}}
                                     </div>
                                 </div>
                             </div>
@@ -678,19 +673,19 @@
         'name' => $c->name,
     ]));
 
- @php
-    $productData = [
-        'existingImagesCount' => isset($product) ? ($product->images->count() ?? 0) : 0,
-        'variantCount' => isset($product) && $product->variants
-            ? $product->variants->groupBy(fn($v) => trim($v->color_hex ?? '') . '||' . trim($v->color_name ?? ''))->count()
-            : 0,
-        'specCount' => isset($product) && $product->specs ? $product->specs->count() : 0,
-        'brandId' => isset($product) ? $product->brand_id : null,
-        'categoryId' => isset($product) ? $product->category_id : null,
-        'subcategory' => $product->subcategory ?? '',
-    ];
-@endphp
-window.PRODUCT_DATA = @json($productData);
+    @php
+        $productData = [
+            'existingImagesCount' => isset($product) ? ($product->images->count() ?? 0) : 0,
+            'variantCount' => isset($product) && $product->variants
+                ? $product->variants->groupBy(fn($v) => trim($v->color_hex ?? '') . '||' . trim($v->color_name ?? ''))->count()
+                : 0,
+            'specCount' => isset($product) && $product->specs ? $product->specs->count() : 0,
+            'brandId' => isset($product) ? $product->brand_id : null,
+            'categoryId' => isset($product) ? $product->category_id : null,
+            'subcategory' => $product->subcategory ?? '',
+        ];
+    @endphp
+    window.PRODUCT_DATA = @json($productData);
 </script>
 <script src="{{ asset('js/admin/products-create.js') }}"></script>
 @endpush

@@ -18,7 +18,6 @@ class ProductsController extends Controller
         protected ProductRepository $repo,
     ) {}
 
-    // ── HELPER: gjen produktin me UUID, kthen modelin ────────
     private function findByUuid(string $uuid): Product
     {
         return Product::where('uuid', $uuid)->firstOrFail();
@@ -49,6 +48,7 @@ class ProductsController extends Controller
             'brands'               => Brand::all(),
             'accessoryCategoryIds' => $accessoryCategoryIds,
             'mainProducts'         => $mainProducts,
+            'categorySubcategories' => [],
         ]);
     }
 
@@ -81,38 +81,47 @@ class ProductsController extends Controller
         return view('admin.products.show', compact('product'));
     }
 
-public function edit(string $uuid)
-{
-    $product = $this->findByUuid($uuid);
-    $product->load('accessoryOf');
+    public function edit(string $uuid)
+    {
+        $product = $this->findByUuid($uuid);
 
-    $accessoryCategoryIds = Category::accessories()->pluck('id');
+        // ✅ FIX: load ALL relations që nevojiten nga blade + service
+        $product->load([
+            'images',
+            'variants',
+            'variantImages',
+            'specs',
+            'accessoryOf',
+            'brand',
+            'category',
+        ]);
 
-    $mainProducts = Product::whereNotIn('category_id', $accessoryCategoryIds)
-        ->where('is_active', true)
-        ->where('id', '!=', $product->id)
-        ->select('id', 'name', 'category_id')
-        ->with('category:id,name')
-        ->orderBy('name')
-        ->get();
+        $accessoryCategoryIds = Category::accessories()->pluck('id');
 
-    // ── SHTO KËTË ──
-    $categorySubcategories = $product->category_id
-        ? \App\Models\CategorySubcategory::where('category_id', $product->category_id)
-            ->orderBy('sort_order')
-            ->pluck('name')
-            ->toArray()
-        : [];
+        $mainProducts = Product::whereNotIn('category_id', $accessoryCategoryIds)
+            ->where('is_active', true)
+            ->where('id', '!=', $product->id)
+            ->select('id', 'name', 'category_id')
+            ->with('category:id,name')
+            ->orderBy('name')
+            ->get();
 
-    return view('admin.products.create', [
-        'product'              => $product,
-        'categories'           => Category::all(),
-        'brands'               => Brand::all(),
-        'accessoryCategoryIds' => $accessoryCategoryIds,
-        'mainProducts'         => $mainProducts,
-        'categorySubcategories' => $categorySubcategories, // ← E RE
-    ]);
-}
+        $categorySubcategories = $product->category_id
+            ? \App\Models\CategorySubcategory::where('category_id', $product->category_id)
+                ->orderBy('sort_order')
+                ->pluck('name')
+                ->toArray()
+            : [];
+
+        return view('admin.products.create', [
+            'product'               => $product,
+            'categories'            => Category::all(),
+            'brands'                => Brand::all(),
+            'accessoryCategoryIds'  => $accessoryCategoryIds,
+            'mainProducts'          => $mainProducts,
+            'categorySubcategories' => $categorySubcategories,
+        ]);
+    }
 
     public function update(Request $request, string $uuid)
     {
@@ -205,13 +214,14 @@ public function edit(string $uuid)
             'variants.*.existing_images.*'     => 'nullable|string|max:500',
             'variants.*.storages'              => 'nullable|array',
             'variants.*.storages.*.storage'    => 'nullable|string|max:50',
-            'variants.*.storages.*.price'      => 'nullable|numeric|min:0',
-            'variants.*.storages.*.sale_price' => 'nullable|numeric|min:0',
+            'variants.*.storages.*.base_price' => 'nullable|numeric|min:0',
+            'variants.*.storages.*.extra_price'=> 'nullable|numeric|min:0',
             'variants.*.storages.*.stock'      => 'nullable|integer|min:0',
             'linked_product_ids'               => 'nullable|array',
             'linked_product_ids.*'             => 'nullable|exists:products,id',
             'subcategory'                      => 'nullable|string|max:100',
-            'featured'    => 'nullable|boolean',
+            'featured'                         => 'nullable|boolean',
+            'is_active'                        => 'nullable|boolean',
         ];
     }
-}
+}   

@@ -120,7 +120,7 @@ function addVariant() {
     const wrap = document.createElement('div');
     wrap.className = 'variant-color-group';
     wrap.id = `variant_${vi}`;
-wrap.innerHTML = `
+    wrap.innerHTML = `
 <div class="variant-color-head">
     <div class="color-swatch-preview" id="swatchPreview_${vi}" style="background:#cccccc;"></div>
     <div style="flex:1;">
@@ -136,7 +136,29 @@ wrap.innerHTML = `
         </div>
     </div>
     <button type="button" class="rm-btn" onclick="removeVariant(${vi})"><i class="fa-solid fa-xmark"></i></button>
-</div><div class="variant-body"><div class="color-photos-section"><div class="color-photos-header"><div class="label"><i class="fa-solid fa-images" style="color:var(--accent3);"></i> Fotot e Ngjyrës</div><button type="button" onclick="document.getElementById('colorPhotoInput_${vi}').click()" class="btn btn-success-soft btn-sm"><i class="fa-solid fa-plus"></i> Shto Foto</button><input type="file" id="colorPhotoInput_${vi}" name="variants[${vi}][images][]" accept="image/*" multiple hidden onchange="addColorPhotos(this, ${vi})"></div><div class="color-photos-grid" id="colorPhotosGrid_${vi}"><div class="color-photo-add-btn" onclick="document.getElementById('colorPhotoInput_${vi}').click()"><i class="fa-solid fa-plus"></i><span>Shto Foto</span></div></div></div><div class="storage-section"><div class="storage-section-header"><div class="label"><i class="fa-solid fa-hard-drive" style="color:#7c3aed;"></i> Storage / Çmimi / Stoku</div><button type="button" onclick="addStorageRow(${vi})" class="btn btn-secondary btn-sm"><i class="fa-solid fa-plus"></i> Shto Storage</button></div><div class="storage-col-headers"><span>Storage</span><span>Bazë (€)</span><span>Shtesë (€)</span><span>Totali</span><span>Stoku</span><span></span></div><div class="storage-rows" id="storageRows_${vi}"><div class="storage-empty" id="storageEmpty_${vi}">Nuk ka storage. Kliko "Shto Storage".</div></div></div></div>`;
+</div>
+<div class="variant-body">
+    <div class="color-photos-section">
+        <div class="color-photos-header">
+            <div class="label"><i class="fa-solid fa-images" style="color:var(--accent3);"></i> Fotot e Ngjyrës</div>
+            <button type="button" onclick="document.getElementById('colorPhotoInput_${vi}').click()" class="btn btn-success-soft btn-sm"><i class="fa-solid fa-plus"></i> Shto Foto</button>
+            <input type="file" id="colorPhotoInput_${vi}" name="variants[${vi}][images][]" accept="image/*" multiple hidden onchange="addColorPhotos(this, ${vi})">
+        </div>
+        <div class="color-photos-grid" id="colorPhotosGrid_${vi}">
+            <div class="color-photo-add-btn" onclick="document.getElementById('colorPhotoInput_${vi}').click()"><i class="fa-solid fa-plus"></i><span>Shto Foto</span></div>
+        </div>
+    </div>
+    <div class="storage-section">
+        <div class="storage-section-header">
+            <div class="label"><i class="fa-solid fa-hard-drive" style="color:#7c3aed;"></i> Storage / Çmimi / Stoku</div>
+            <button type="button" onclick="addStorageRow(${vi})" class="btn btn-secondary btn-sm"><i class="fa-solid fa-plus"></i> Shto Storage</button>
+        </div>
+        <div class="storage-col-headers"><span>Storage</span><span>Bazë (€)</span><span>Shtesë (€)</span><span>Totali</span><span>Stoku</span><span></span></div>
+        <div class="storage-rows" id="storageRows_${vi}">
+            <div class="storage-empty" id="storageEmpty_${vi}">Nuk ka storage. Kliko "Shto Storage".</div>
+        </div>
+    </div>
+</div>`;
     list.appendChild(wrap);
 }
 function removeVariant(vi) {
@@ -213,7 +235,13 @@ function removeColorPhoto(btn) {
     refreshPrimaryBadges(vi);
 }
 function addStorageRow(vi) {
-    if (storageCounters[vi] === undefined) storageCounters[vi] = document.querySelectorAll(`#storageRows_${vi} .storage-row`).length;
+    // ✅ FIX: storageCounters inicializohet nga numri real i rows ekzistuese
+    if (storageCounters[vi] === undefined) {
+        const container = document.getElementById(`storageRows_${vi}`);
+        storageCounters[vi] = container
+            ? container.querySelectorAll('.storage-row').length
+            : document.querySelectorAll(`#variant_${vi} .storage-row`).length;
+    }
     const si      = storageCounters[vi]++;
     const isFirst = si === 0;
     const container = document.getElementById(`storageRows_${vi}`);
@@ -259,7 +287,10 @@ function removeSpec(button) {
 // ════════════ FOTO EKZISTUESE ════════════
 function deleteImage(imgId, productId) {
     if (!confirm('Fshi këtë foto?')) return;
-    fetch(`/admin/products/${productId}/images/${imgId}`, { method: 'DELETE', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' } })
+    fetch(`/admin/products/${productId}/images/${imgId}`, {
+        method: 'DELETE',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+    })
     .then(r => r.json()).then(data => {
         if (!data.success) return;
         const el = document.getElementById(`imgWrap${imgId}`);
@@ -274,7 +305,10 @@ function deleteImage(imgId, productId) {
     });
 }
 function setPrimary(imgId, productId) {
-    fetch(`/admin/products/${productId}/images/${imgId}/primary`, { method: 'POST', headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' } })
+    fetch(`/admin/products/${productId}/images/${imgId}/primary`, {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+    })
     .then(r => r.json()).then(data => {
         if (!data.success) return;
         document.querySelectorAll('.existing-primary-badge').forEach(b => b.remove());
@@ -291,7 +325,7 @@ function setPrimary(imgId, productId) {
     });
 }
 
-// ════════════ NËNKATEGORITË — merr nga DB ════════════
+// ════════════ NËNKATEGORITË ════════════
 function renderSubcategorySuggestions(categoryId) {
     const group  = document.getElementById('subcategoryGroup');
     const select = document.getElementById('subcategorySelect');
@@ -306,9 +340,7 @@ function renderSubcategorySuggestions(categoryId) {
         .then(r => r.json())
         .then(subcategories => {
             if (!subcategories.length) return;
-
             const currentVal = window.PRODUCT_DATA?.subcategory ?? '';
-
             subcategories.forEach(name => {
                 const opt = document.createElement('option');
                 opt.value = name;
@@ -316,18 +348,22 @@ function renderSubcategorySuggestions(categoryId) {
                 if (name === currentVal) opt.selected = true;
                 select.appendChild(opt);
             });
-
             group.style.display = '';
         })
         .catch(() => {});
 }
-// ════════════ DOMContentLoaded — NJË HERË VETËM ════════════
+
+// ════════════ DOMContentLoaded ════════════
 document.addEventListener('DOMContentLoaded', function () {
 
+    // ✅ FIX: inicializimi i storageCounters bazuar tek storageRows container (tani ekziston në edit mode)
     document.querySelectorAll('.variant-color-group').forEach(group => {
         const vi = parseInt((group.id || '').split('_')[1], 10);
         if (isNaN(vi)) return;
-        storageCounters[vi]   = document.querySelectorAll(`#storageRows_${vi} .storage-row`).length;
+        const container = document.getElementById(`storageRows_${vi}`);
+        storageCounters[vi] = container
+            ? container.querySelectorAll('.storage-row').length
+            : group.querySelectorAll('.storage-row').length;
         variantPhotoFiles[vi] = [];
     });
 
@@ -360,7 +396,8 @@ document.addEventListener('DOMContentLoaded', function () {
                                 if (brand.id === currentBrandId) opt.selected = true;
                                 brandSelect.appendChild(opt);
                             });
-                        });
+                        })
+                        .catch(() => {});
                 }
             }
 
@@ -392,7 +429,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.syncBasePrice = function (vi) {
         const base = parseFloat(document.getElementById(`basePrice_${vi}`)?.value || 0);
-        document.querySelectorAll(`#storageRows_${vi} .storage-row`).forEach((row, idx) => {
+        const container = document.getElementById(`storageRows_${vi}`);
+        if (!container) return;
+        container.querySelectorAll('.storage-row').forEach((row, idx) => {
             if (idx === 0) return;
             const nameAttr = row.querySelector('[name*="extra_price"]')?.getAttribute('name');
             if (!nameAttr) return;
@@ -408,16 +447,18 @@ document.addEventListener('DOMContentLoaded', function () {
     };
 
     window.calcTotal = function (vi, si) {
-        const base = parseFloat(document.getElementById(`basePrice_${vi}`)?.value || 0);
-        const row  = document.getElementById(`storageRow_${vi}_${si}`);
+        const base  = parseFloat(document.getElementById(`basePrice_${vi}`)?.value || 0);
+        const row   = document.getElementById(`storageRow_${vi}_${si}`);
         if (!row) return;
         const extra = parseFloat(row.querySelector('[name*="extra_price"]')?.value || 0);
-        const el = document.getElementById(`total_${vi}_${si}`);
+        const el    = document.getElementById(`total_${vi}_${si}`);
         if (el) el.textContent = (base + extra) > 0 ? `${(base + extra).toFixed(2)} €` : '—';
     };
 
     window.refreshAllTotals = function (vi) {
-        document.querySelectorAll(`#storageRows_${vi} .storage-row`).forEach(row => {
+        const container = document.getElementById(`storageRows_${vi}`);
+        if (!container) return;
+        container.querySelectorAll('.storage-row').forEach(row => {
             const extraInput = row.querySelector('[name*="extra_price"]');
             if (!extraInput) return;
             const match = extraInput.getAttribute('name').match(/storages\]\[(\d+)\]/);

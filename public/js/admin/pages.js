@@ -245,42 +245,26 @@ function toggleBrand(div) {
 }
 
 /* === categories/index.blade.php === */
-function filterTable() {
-    const q = document.getElementById('searchInput').value.toLowerCase();
-    document.querySelectorAll('#catTable tbody tr').forEach(row => {
-        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-    });
-}
-
 function generateSlug(val) {
     const slug = val.toLowerCase()
         .replace(/ë/g,'e').replace(/ç/g,'c')
         .replace(/[^a-z0-9\s-]/g,'')
         .trim().replace(/\s+/g,'-');
     const field = document.getElementById('slugField');
-    if (!field.dataset.edited) field.value = slug;
-    document.getElementById('slugPreview').textContent = slug || '...';
+    if (field && !field.dataset.edited) field.value = slug;
+    const preview = document.getElementById('slugPreview');
+    if (preview) preview.textContent = slug || '...';
 }
 
-document.getElementById('slugField').addEventListener('input', function() {
-    this.dataset.edited = 'true';
-    document.getElementById('slugPreview').textContent = this.value || '...';
-});
-
-// Init slug preview
-generateSlug(document.querySelector('[name="name"]').value);
 function previewIcon(val) {
     val = val.trim().replace(/^fa-/, '');
     const full = 'fa-' + (val || 'tag');
-    document.getElementById('iconPreviewI').className = 'fa-solid ' + full;
-    document.getElementById('iconHidden').value = full;
+    const iconEl = document.getElementById('iconPreviewI');
+    const hiddenEl = document.getElementById('iconHidden');
+    if (iconEl) iconEl.className = 'fa-solid ' + full;
+    if (hiddenEl) hiddenEl.value = full;
 }
 
-// Init në load
-document.addEventListener('DOMContentLoaded', () => {
-    const inp = document.getElementById('iconInput');
-    if (inp) previewIcon(inp.value);
-});
 function updateBrandCard(input) {
     const label = input.closest('label');
     const box   = label.querySelector('.brand-checkbox-box');
@@ -300,74 +284,6 @@ function updateBrandCard(input) {
         check.style.display     = 'none';
     }
 }
-function toggleBrand(div) {
-    const input = div.querySelector('input[type="checkbox"]');
-    const box   = div.querySelector('.brand-checkbox-box');
-    const check = div.querySelector('.brand-checkbox-check');
-
-    input.checked = !input.checked;
-
-    if (input.checked) {
-        div.style.borderColor = '#00bcd4';
-        div.style.background  = 'rgba(0,188,212,0.06)';
-        box.style.background  = '#00bcd4';
-        box.style.borderColor = '#00bcd4';
-        check.style.display   = '';
-    } else {
-        div.style.borderColor = '';
-        div.style.background  = '';
-        box.style.background  = 'transparent';
-        box.style.borderColor = '';
-        check.style.display   = 'none';
-    }
-}
-document.getElementById('iconInput').addEventListener('paste', function(e) {
-    e.preventDefault();
-    var pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
-    var name = pasted;
-
-    // FontAwesome
-    if (pasted.includes('fontawesome.com/icons/')) {
-        var match = pasted.match(/icons\/([a-z0-9-]+)/);
-        if (match) name = match[1];
-    }
-    // Bootstrap Icons
-    else if (pasted.includes('icons.getbootstrap.com/icons/')) {
-        var match = pasted.match(/icons\/([a-z0-9-]+)/);
-        if (match) name = match[1];
-    }
-    // Heroicons
-    else if (pasted.includes('heroicons.com')) {
-        var match = pasted.match(/\/([a-z0-9-]+)\/?$/);
-        if (match) name = match[1];
-    }
-    // URL e përgjithshme — merr pjesën e fundit
-    else if (pasted.startsWith('http')) {
-        var parts = pasted.replace(/\/$/, '').split('/');
-        name = parts[parts.length - 1];
-    }
-
-    // Hiq prefikset e njohura
-    name = name.replace(/^fa-/, '')
-               .replace(/^bi-/, '')
-               .replace(/^icon-/, '')
-               .replace(/[?#].*$/, ''); // hiq query params
-
-    this.value = name;
-    previewIcon(name);
-});
-function previewIcon(val) {
-    val = val.trim().replace(/^fa-/, '');
-    const full = 'fa-' + (val || 'tag');
-
-    document.getElementById('iconPreviewI').className = 'fa-solid ' + full;
-    document.getElementById('iconHidden').value = full;
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const inp = document.getElementById('iconInput');
-    if (inp) previewIcon(inp.value);
-});
 
 /* === orders/create.blade.php === */
 let itemCount = {{ isset($order) ? $order->items->count() : 1 }};
@@ -415,38 +331,7 @@ function updatePrice(sel, i) {
     calcTotal();
 }
 
-function calcTotal() {
-    let sub = 0;
-    document.querySelectorAll('.order-item-row').forEach(row => {
-        const qty   = parseFloat(row.querySelector('.item-qty')?.value) || 0;
-        const price = parseFloat(row.querySelector('.item-price')?.value) || 0;
-        sub += qty * price;
-    });
-    const total = sub + 2.50;
-    document.getElementById('subtotalDisplay').textContent = sub.toFixed(2) + ' €';
-    document.getElementById('totalDisplay').textContent = total.toFixed(2) + ' €';
-    document.getElementById('totalReadout').textContent = total.toFixed(2) + ' €';
-    document.getElementById('totalInput').value = total.toFixed(2);
-}
-
-calcTotal();
-
 /* === orders/index.blade.php === */
-function filterTable() {
-    const q  = document.getElementById('searchInput').value.toLowerCase();
-    const st = document.getElementById('statusFilter').value;
-    document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
-        const matchText   = !q  || row.textContent.toLowerCase().includes(q);
-        const matchStatus = !st || (row.dataset.status??'') === st;
-        row.style.display = (matchText && matchStatus) ? '' : 'none';
-    });
-    document.querySelectorAll('.order-mobile-card').forEach(card => {
-        const matchText   = !q  || card.textContent.toLowerCase().includes(q);
-        const matchStatus = !st || (card.dataset.status??'') === st;
-        card.style.display = (matchText && matchStatus) ? '' : 'none';
-    });
-}
-
 function toggleAll(cb) {
     document.querySelectorAll('.row-check').forEach(c => {
         c.checked = cb.checked;
@@ -494,8 +379,6 @@ function updateRefundTotal() {
     let total = 0;
     document.querySelectorAll('input[name^="items"][name$="[quantity]"]').forEach(input => {
         const qty = parseInt(input.value) || 0;
-        const priceInput = input.closest('div.card-body div').querySelector('input[name$="[unit_price]"]');
-        // gjej unit_price nga forma
         const row = input.closest('[style*="background:var(--surface2)"]');
         if (row) {
             const priceEl = row.querySelector('input[name$="[unit_price]"]');
@@ -516,7 +399,10 @@ function confirmRefund() {
     return confirm('Do të kthehet pagesa prej ' + total + ' te klienti përmes Stripe. Jeni i sigurt?');
 }
 
-/* === products/Create.blade.php === */
+/* ═══════════════════════════════════════════════════════════
+   === products/create.blade.php ===
+   ═══════════════════════════════════════════════════════════ */
+
 // ════════════ FOTO KRYESORE TË PRODUKTIT ════════════
 let selectedFiles = [];
 const existingCount = {{ isset($product) ? ($product->images->count() ?? 0) : 0 }};
@@ -535,16 +421,10 @@ function handleDrop(e) {
 function addFiles(incoming) {
     Array.from(incoming).forEach(f => {
         const exists = selectedFiles.some(s =>
-            s.name === f.name &&
-            s.size === f.size &&
-            s.lastModified === f.lastModified
+            s.name === f.name && s.size === f.size && s.lastModified === f.lastModified
         );
-
-        if (!exists) {
-            selectedFiles.push(f);
-        }
+        if (!exists) selectedFiles.push(f);
     });
-
     syncInputFiles();
     renderPreviews();
 }
@@ -552,7 +432,6 @@ function addFiles(incoming) {
 function syncInputFiles() {
     const input = document.getElementById('imagesInput');
     if (!input) return;
-
     const dt = new DataTransfer();
     selectedFiles.forEach(f => dt.items.add(f));
     input.files = dt.files;
@@ -560,10 +439,9 @@ function syncInputFiles() {
 
 function renderPreviews() {
     const section = document.getElementById('previewSection');
-    const list = document.getElementById('previewList');
+    const list    = document.getElementById('previewList');
     const countEl = document.getElementById('previewCount');
     const selPrim = document.getElementById('primarySelect');
-
     if (!section || !list || !countEl || !selPrim) return;
 
     updateStats();
@@ -584,7 +462,6 @@ function renderPreviews() {
         const div = document.createElement('div');
         div.className = 'prev-item' + (i === 0 ? ' primary' : '');
         div.id = `prev_${i}`;
-
         const reader = new FileReader();
         reader.onload = ev => {
             div.innerHTML = `
@@ -597,7 +474,6 @@ function renderPreviews() {
                 </div>`;
         };
         reader.readAsDataURL(file);
-
         list.appendChild(div);
 
         const opt = document.createElement('option');
@@ -617,47 +493,34 @@ function removeFile(idx) {
 
 function clearPreviews() {
     selectedFiles = [];
-
     const input = document.getElementById('imagesInput');
     if (input) input.value = '';
-
     const section = document.getElementById('previewSection');
-    const list = document.getElementById('previewList');
+    const list    = document.getElementById('previewList');
     const primary = document.getElementById('primarySelect');
-
     if (section) section.style.display = 'none';
-    if (list) list.innerHTML = '';
+    if (list)    list.innerHTML = '';
     if (primary) primary.innerHTML = '';
-
     updateStats();
 }
 
 function updateStats() {
-    const n = selectedFiles.length;
+    const n  = selectedFiles.length;
     const sN = document.getElementById('statNew');
     const sT = document.getElementById('statTotal');
-
     if (sN) sN.textContent = n;
     if (sT) sT.textContent = existingCount + n;
 }
 
 document.addEventListener('change', function (e) {
-    if (e.target.id === 'imagesInput') {
-        addFiles(e.target.files);
-    }
-
+    if (e.target.id === 'imagesInput') addFiles(e.target.files);
     if (e.target.id === 'primarySelect') {
         const idx = parseInt(e.target.value, 10);
-
         document.querySelectorAll('.prev-item').forEach((el, i) => {
             el.classList.toggle('primary', i === idx);
-
             const lbl = el.querySelector('.p-label');
-            if (i === idx && !lbl) {
-                el.insertAdjacentHTML('beforeend', '<div class="p-label"><i class="fa-solid fa-star" style="font-size:8px;"></i> KRYESORE</div>');
-            } else if (i !== idx && lbl) {
-                lbl.remove();
-            }
+            if (i === idx && !lbl) el.insertAdjacentHTML('beforeend', '<div class="p-label"><i class="fa-solid fa-star" style="font-size:8px;"></i> KRYESORE</div>');
+            else if (i !== idx && lbl) lbl.remove();
         });
     }
 });
@@ -669,164 +532,118 @@ let variantIndex = {{ isset($product) && $product->variants
     })->count()
     : 0 }};
 
-const storageCounters = {};
+const storageCounters   = {};
 const variantPhotoFiles = {};
-
-// Inicializo counter-at për variantet ekzistuese
-document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.variant-color-group').forEach(group => {
-        const id = group.id || '';
-        const parts = id.split('_');
-        if (parts.length < 2) return;
-
-        const vi = parseInt(parts[1], 10);
-        if (isNaN(vi)) return;
-
-        storageCounters[vi] = document.querySelectorAll(`#storageRows_${vi} .storage-row`).length;
-        variantPhotoFiles[vi] = [];
-    });
-});
 
 function updateSwatch(vi, color) {
     const swatch = document.getElementById(`swatchPreview_${vi}`);
     if (swatch) swatch.style.background = color;
 }
 
+// ✅ FIX: GLOBAL scope — të thirrueshme nga oninput="syncBasePrice(...)" në HTML
+function syncBasePrice(vi) {
+    const base = parseFloat(document.getElementById(`basePrice_${vi}`)?.value || 0);
+    const container = document.getElementById(`storageRows_${vi}`);
+    if (!container) return;
+    container.querySelectorAll('.storage-row').forEach((row, idx) => {
+        if (idx === 0) return;
+        const nameAttr = row.querySelector('[name*="extra_price"]')?.getAttribute('name');
+        if (!nameAttr) return;
+        const match = nameAttr.match(/storages\]\[(\d+)\]/);
+        if (!match) return;
+        const si = match[1];
+        const hidden  = document.getElementById(`basePriceHidden_${vi}_${si}`);
+        const display = document.getElementById(`baseDisplay_${vi}_${si}`);
+        if (hidden)  hidden.value    = base;
+        if (display) display.textContent = base > 0 ? base.toFixed(2) + ' €' : '—';
+        calcTotal(vi, parseInt(si));
+    });
+}
+
+// ✅ FIX: GLOBAL scope
+function calcTotal(vi, si) {
+    const base = parseFloat(document.getElementById(`basePrice_${vi}`)?.value || 0);
+    const row  = document.getElementById(`storageRow_${vi}_${si}`);
+    if (!row) return;
+    const extra = parseFloat(row.querySelector('[name*="extra_price"]')?.value || 0);
+    const el    = document.getElementById(`total_${vi}_${si}`);
+    if (el) el.textContent = (base + extra) > 0 ? `${(base + extra).toFixed(2)} €` : '—';
+}
+
+// ✅ FIX: GLOBAL scope + argumentet e sakta
+function refreshAllTotals(vi) {
+    const container = document.getElementById(`storageRows_${vi}`);
+    if (!container) return;
+    container.querySelectorAll('.storage-row').forEach(row => {
+        const extraInput = row.querySelector('[name*="extra_price"]');
+        if (!extraInput) return;
+        const match = extraInput.getAttribute('name').match(/storages\]\[(\d+)\]/);
+        if (match) calcTotal(vi, parseInt(match[1])); // ✅ 2 args (jo 3)
+    });
+}
+
 function addVariant() {
-    const list = document.getElementById('variantsList');
+    const list  = document.getElementById('variantsList');
     const empty = document.getElementById('variantsEmpty');
     if (empty) empty.remove();
 
     const vi = variantIndex++;
     variantPhotoFiles[vi] = [];
-    storageCounters[vi] = 0;
+    storageCounters[vi]   = 0;
 
     const wrap = document.createElement('div');
     wrap.className = 'variant-color-group';
     wrap.id = `variant_${vi}`;
-
     wrap.innerHTML = `
-        <div class="variant-color-head">
-            <div class="color-swatch-preview" id="swatchPreview_${vi}" style="background:#cccccc;"></div>
-
-            <div>
-                <label class="form-label" style="margin-bottom:6px;">Ngjyra</label>
-                <div class="color-picker-row">
-                    <input type="color"
-                           name="variants[${vi}][color_hex]"
-                           value="#cccccc"
-                           oninput="updateSwatch(${vi}, this.value)">
-                    <input type="text"
-                           name="variants[${vi}][color_name]"
-                           class="form-control"
-                           placeholder="p.sh. Black, Midnight, Silver">
-                </div>
-            </div>
-
-            <div></div>
- <div>
-        <label class="form-label">Çmimi Bazë (€)</label>
-     <input type="number" step="0.01"
-       name="variants[${vi}][base_price]"
-       id="basePrice_${vi}"
-       class="form-control"
-       placeholder="p.sh. 999.00"
-       oninput="refreshAllTotals(${vi})">
+<div class="variant-color-head">
+    <div class="color-swatch-preview" id="swatchPreview_${vi}" style="background:#cccccc;"></div>
+    <div style="flex:1;">
+        <label class="form-label" style="margin-bottom:6px;">Ngjyra</label>
+        <div class="color-picker-row">
+            <input type="color" id="colorHex_${vi}" name="variants[${vi}][color_hex]" value="#cccccc" oninput="updateSwatch(${vi}, this.value)">
+            <input type="text" name="variants[${vi}][color_name]" class="form-control" placeholder="p.sh. Black, Midnight, Silver">
+        </div>
     </div>
-            <button type="button" class="rm-btn" onclick="removeVariant(${vi})">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-        </div>
-
-        <div class="variant-body">
-            <div class="color-photos-section">
-                <div class="color-photos-header">
-                    <div class="label">
-                        <i class="fa-solid fa-images" style="color:var(--accent3);"></i>
-                        Fotot e Ngjyrës
-                    </div>
-
-                    <button type="button"
-                            onclick="document.getElementById('colorPhotoInput_${vi}').click()"
-                            class="btn btn-success-soft btn-sm">
-                        <i class="fa-solid fa-plus"></i> Shto Foto
-                    </button>
-
-                    <input type="file"
-                           id="colorPhotoInput_${vi}"
-                           name="variants[${vi}][images][]"
-                           accept="image/*"
-                           multiple
-                           hidden
-                           onchange="addColorPhotos(this, ${vi})">
-
-                </div>
-
-                <div class="color-photos-grid" id="colorPhotosGrid_${vi}">
-                    <div class="color-photo-add-btn"
-                         onclick="document.getElementById('colorPhotoInput_${vi}').click()">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Shto Foto</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="storage-section">
-                <div class="storage-section-header">
-                    <div class="label">
-                        <i class="fa-solid fa-hard-drive" style="color:#7c3aed;"></i>
-                        Storage / Çmimi / Stoku
-                    </div>
-
-                    <button type="button"
-                            onclick="addStorageRow(${vi})"
-                            class="btn btn-secondary btn-sm">
-                        <i class="fa-solid fa-plus"></i> Shto Storage
-                    </button>
-                </div>
-
-<div class="storage-col-headers">
-    <span>Storage</span>
-    <span>Bazë (€)</span>
-    <span>Shtesë (€)</span>
-    <span>Totali</span>
-    <span>Stoku</span>
-    <span></span>
+    <button type="button" class="rm-btn" onclick="removeVariant(${vi})"><i class="fa-solid fa-xmark"></i></button>
 </div>
-
-                <div class="storage-rows" id="storageRows_${vi}">
-                    <div class="storage-empty" id="storageEmpty_${vi}">
-                        Nuk ka storage. Kliko "Shto Storage".
-                    </div>
-                </div>
-            </div>
+<div class="variant-body">
+    <div class="color-photos-section">
+        <div class="color-photos-header">
+            <div class="label"><i class="fa-solid fa-images" style="color:var(--accent3);"></i> Fotot e Ngjyrës</div>
+            <button type="button" onclick="document.getElementById('colorPhotoInput_${vi}').click()" class="btn btn-success-soft btn-sm"><i class="fa-solid fa-plus"></i> Shto Foto</button>
+            <input type="file" id="colorPhotoInput_${vi}" name="variants[${vi}][images][]" accept="image/*" multiple hidden onchange="addColorPhotos(this, ${vi})">
         </div>
-    `;
-
+        <div class="color-photos-grid" id="colorPhotosGrid_${vi}">
+            <div class="color-photo-add-btn" onclick="document.getElementById('colorPhotoInput_${vi}').click()"><i class="fa-solid fa-plus"></i><span>Shto Foto</span></div>
+        </div>
+    </div>
+    <div class="storage-section">
+        <div class="storage-section-header">
+            <div class="label"><i class="fa-solid fa-hard-drive" style="color:#7c3aed;"></i> Storage / Çmimi / Stoku</div>
+            <button type="button" onclick="addStorageRow(${vi})" class="btn btn-secondary btn-sm"><i class="fa-solid fa-plus"></i> Shto Storage</button>
+        </div>
+        <div class="storage-col-headers"><span>Storage</span><span>Bazë (€)</span><span>Shtesë (€)</span><span>Totali</span><span>Stoku</span><span></span></div>
+        <div class="storage-rows" id="storageRows_${vi}">
+            <div class="storage-empty" id="storageEmpty_${vi}">Nuk ka storage. Kliko "Shto Storage".</div>
+        </div>
+    </div>
+</div>`;
     list.appendChild(wrap);
 }
 
 function removeVariant(vi) {
-    const el = document.getElementById(`variant_${vi}`);
-    if (el) el.remove();
-
+    document.getElementById(`variant_${vi}`)?.remove();
     delete variantPhotoFiles[vi];
     delete storageCounters[vi];
-
     const list = document.getElementById('variantsList');
     if (!list.querySelector('.variant-color-group')) {
-        list.innerHTML = `
-            <div id="variantsEmpty" class="variant-empty">
-                <i class="fa-solid fa-palette" style="font-size:28px;opacity:0.2;display:block;margin-bottom:10px;"></i>
-                Nuk ka variante. Kliko <strong>"Shto Ngjyrë"</strong> për të shtuar ngjyrë me foto dhe storage.
-            </div>`;
+        list.innerHTML = `<div id="variantsEmpty" class="variant-empty"><i class="fa-solid fa-palette" style="font-size:28px;opacity:0.2;display:block;margin-bottom:10px;"></i>Nuk ka variante. Kliko <strong>"Shto Ngjyrë"</strong> për të shtuar ngjyrë me foto dhe storage.</div>`;
     }
 }
 
 function syncColorPhotoInput(vi) {
     const input = document.getElementById(`colorPhotoInput_${vi}`);
     if (!input) return;
-
     const dt = new DataTransfer();
     (variantPhotoFiles[vi] || []).forEach(file => dt.items.add(file));
     input.files = dt.files;
@@ -835,102 +652,59 @@ function syncColorPhotoInput(vi) {
 function refreshPrimaryBadges(vi) {
     const grid = document.getElementById(`colorPhotosGrid_${vi}`);
     if (!grid) return;
-
-    const items = Array.from(grid.querySelectorAll('.color-photo-item'));
-
-    items.forEach((el, i) => {
+    Array.from(grid.querySelectorAll('.color-photo-item')).forEach((el, i) => {
         el.classList.toggle('primary-photo', i === 0);
-
         const badge = el.querySelector('.color-photo-primary-badge');
-        if (i === 0 && !badge) {
-            el.insertAdjacentHTML('beforeend', '<span class="color-photo-primary-badge">★ Kryesore</span>');
-        } else if (i !== 0 && badge) {
-            badge.remove();
-        }
+        if (i === 0 && !badge) el.insertAdjacentHTML('beforeend', '<span class="color-photo-primary-badge">★ Kryesore</span>');
+        else if (i !== 0 && badge) badge.remove();
     });
 }
 
 function renderColorPhotos(vi) {
     const grid = document.getElementById(`colorPhotosGrid_${vi}`);
     if (!grid) return;
-
-    // Largo preview-t e upload-eve të reja
     grid.querySelectorAll('.color-photo-item.new-upload').forEach(el => el.remove());
-
     const addBtn = grid.querySelector('.color-photo-add-btn');
-    const files = variantPhotoFiles[vi] || [];
-
-    files.forEach((file, idx) => {
+    (variantPhotoFiles[vi] || []).forEach((file, idx) => {
         const reader = new FileReader();
-
         reader.onload = function (e) {
             const item = document.createElement('div');
             item.className = 'color-photo-item new-upload';
-            item.dataset.vi = vi;
+            item.dataset.vi  = vi;
             item.dataset.idx = idx;
-
-            item.innerHTML = `
-                <img src="${e.target.result}" alt="">
-                <button type="button" class="color-photo-rm" onclick="removeColorPhoto(this)">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            `;
-
-            if (addBtn) {
-                grid.insertBefore(item, addBtn);
-            } else {
-                grid.appendChild(item);
-            }
-
+            item.innerHTML = `<img src="${e.target.result}" alt=""><button type="button" class="color-photo-rm" onclick="removeColorPhoto(this)"><i class="fa-solid fa-xmark"></i></button>`;
+            if (addBtn) grid.insertBefore(item, addBtn);
+            else grid.appendChild(item);
             refreshPrimaryBadges(vi);
         };
-
         reader.readAsDataURL(file);
     });
-
     setTimeout(() => refreshPrimaryBadges(vi), 30);
 }
 
 function addColorPhotos(input, vi) {
     if (!input.files || !input.files.length) return;
-
-    if (!variantPhotoFiles[vi]) {
-        variantPhotoFiles[vi] = [];
-    }
-
+    if (!variantPhotoFiles[vi]) variantPhotoFiles[vi] = [];
     Array.from(input.files).forEach(file => {
         const exists = variantPhotoFiles[vi].some(f =>
-            f.name === file.name &&
-            f.size === file.size &&
-            f.lastModified === file.lastModified
+            f.name === file.name && f.size === file.size && f.lastModified === file.lastModified
         );
-
-        if (!exists) {
-            variantPhotoFiles[vi].push(file);
-        }
+        if (!exists) variantPhotoFiles[vi].push(file);
     });
     input.value = '';
-
     syncColorPhotoInput(vi);
     renderColorPhotos(vi);
-
 }
 
 function removeColorPhoto(btn) {
     const item = btn.closest('.color-photo-item');
     if (!item) return;
-
     const vi = parseInt(item.dataset.vi, 10);
-
-    // Foto ekzistuese nga DB
-    const hiddenInput = item.querySelector('input[type="hidden"]');
-    if (hiddenInput) {
+    if (item.querySelector('input[type="hidden"]')) {
         item.remove();
         refreshPrimaryBadges(vi);
         return;
     }
-
-    // Foto e re
     const idx = parseInt(item.dataset.idx, 10);
     if (!isNaN(vi) && !isNaN(idx) && variantPhotoFiles[vi]) {
         variantPhotoFiles[vi].splice(idx, 1);
@@ -938,28 +712,26 @@ function removeColorPhoto(btn) {
         renderColorPhotos(vi);
         return;
     }
-
     item.remove();
     refreshPrimaryBadges(vi);
 }
 
 function addStorageRow(vi) {
     if (storageCounters[vi] === undefined) {
-        storageCounters[vi] = document.querySelectorAll(`#storageRows_${vi} .storage-row`).length;
+        const container = document.getElementById(`storageRows_${vi}`);
+        storageCounters[vi] = container
+            ? container.querySelectorAll('.storage-row').length
+            : document.querySelectorAll(`#variant_${vi} .storage-row`).length;
     }
-
-    const si = storageCounters[vi]++;
+    const si      = storageCounters[vi]++;
     const isFirst = si === 0;
     const container = document.getElementById(`storageRows_${vi}`);
     if (!container) return;
-
-    const empty = document.getElementById(`storageEmpty_${vi}`);
-    if (empty) empty.remove();
+    document.getElementById(`storageEmpty_${vi}`)?.remove();
 
     const row = document.createElement('div');
     row.className = 'storage-row';
     row.id = `storageRow_${vi}_${si}`;
-
     row.innerHTML = `
         <select name="variants[${vi}][storages][${si}][storage]" class="form-select">
             <option value="">— Zgjedh —</option>
@@ -970,77 +742,25 @@ function addStorageRow(vi) {
             <option value="1TB">1TB</option>
             <option value="2TB">2TB</option>
         </select>
-
-        ${isFirst ? `
-        <input type="number" step="0.01"
-               name="variants[${vi}][storages][${si}][base_price]"
-               class="form-control storage-base"
-               id="basePrice_${vi}"
-               placeholder="999.00"
-               oninput="syncBasePrice(${vi}); calcTotal(${vi}, ${si})">
-        ` : `
-        <div style="font-size:12px;color:var(--text-muted);align-self:center;padding:0 4px;">
-            <i class="fa-solid fa-arrow-turn-down-right" style="font-size:10px;"></i>
-            <span id="baseDisplay_${vi}_${si}" style="font-weight:600;">—</span>
-        </div>
-        <input type="hidden" name="variants[${vi}][storages][${si}][base_price]"
-               id="basePriceHidden_${vi}_${si}" value="0">
-        `}
-
-        <input type="number" step="0.01"
-               name="variants[${vi}][storages][${si}][extra_price]"
-               class="form-control"
-               placeholder="+0.00"
-               oninput="calcTotal(${vi}, ${si})">
-
-        <div style="font-size:13px;color:#059669;font-weight:700;align-self:center;"
-             id="total_${vi}_${si}">—</div>
-
-        <input type="number"
-               name="variants[${vi}][storages][${si}][stock]"
-               class="form-control"
-               value="0" placeholder="0">
-
-        <button type="button" class="rm-btn-sm" onclick="removeStorageRow(this)">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-    `;
-
+        ${isFirst
+            ? `<input type="number" step="0.01" name="variants[${vi}][storages][${si}][base_price]" class="form-control storage-base" id="basePrice_${vi}" placeholder="999.00" oninput="syncBasePrice(${vi}); calcTotal(${vi}, ${si})">`
+            : `<div style="font-size:12px;color:var(--text-muted);align-self:center;padding:0 4px;"><i class="fa-solid fa-arrow-turn-down-right" style="font-size:10px;"></i><span id="baseDisplay_${vi}_${si}" style="font-weight:600;">—</span></div><input type="hidden" name="variants[${vi}][storages][${si}][base_price]" id="basePriceHidden_${vi}_${si}" value="0">`
+        }
+        <input type="number" step="0.01" name="variants[${vi}][storages][${si}][extra_price]" class="form-control" placeholder="+0.00" oninput="calcTotal(${vi}, ${si})">
+        <div style="font-size:13px;color:#059669;font-weight:700;align-self:center;" id="total_${vi}_${si}">—</div>
+        <input type="number" name="variants[${vi}][storages][${si}][stock]" class="form-control" value="0" placeholder="0">
+        <button type="button" class="rm-btn-sm" onclick="removeStorageRow(this)"><i class="fa-solid fa-xmark"></i></button>`;
     container.appendChild(row);
 }
-function updateStoragePrice(select, vi, si) {
-    const customInput = document.getElementById(`customStorage_${vi}_${si}`);
-    
-    // Shfaq input custom nëse zgjedh "Tjetër"
-    if (select.value === 'custom') {
-        customInput.style.display = 'block';
-        select.style.width = '50%';
-    } else {
-        customInput.style.display = 'none';
-        select.style.width = '';
-        // Nëse zgjedh storage, vendos çmim bazë automatik nga produkti
-        const basePrice = parseFloat(document.querySelector('[name="price"]')?.value || 0);
-        const extras = { '64GB': 0, '128GB': 0, '256GB': 50, '512GB': 100, '1TB': 200, '2TB': 350 };
-        const extra = extras[select.value] || 0;
-        const priceInput = document.getElementById(`storagePrice_${vi}_${si}`);
-        if (priceInput && !priceInput.value) {
-            priceInput.value = basePrice > 0 ? (basePrice + extra).toFixed(2) : '';
-        }
-    }
-}
+
 function removeStorageRow(btn) {
     const row = btn.closest('.storage-row');
     if (!row) return;
-
     const vi = row.id.split('_')[1];
     row.remove();
-
     const container = document.getElementById(`storageRows_${vi}`);
     if (container && !container.querySelector('.storage-row')) {
-        container.innerHTML = `
-            <div class="storage-empty" id="storageEmpty_${vi}">
-                Nuk ka storage. Kliko "Shto Storage".
-            </div>`;
+        container.innerHTML = `<div class="storage-empty" id="storageEmpty_${vi}">Nuk ka storage. Kliko "Shto Storage".</div>`;
     }
 }
 
@@ -1048,32 +768,16 @@ function removeStorageRow(btn) {
 let specIndex = {{ isset($product) && $product->specs ? $product->specs->count() : 0 }};
 
 function addSpec(keyName = '') {
-    const empty = document.getElementById('specsEmpty');
-    if (empty) empty.style.display = 'none';
-
-    const si = specIndex++;
+    document.getElementById('specsEmpty')?.style.setProperty('display', 'none');
+    const si  = specIndex++;
     const row = document.createElement('div');
     row.className = 'spec-row';
     row.id = `specRow_${si}`;
     row.innerHTML = `
-        <input type="text"
-               name="specs[${si}][key]"
-               class="form-control"
-               value="${keyName}"
-               placeholder="p.sh. Ekrani">
-
-        <input type="text"
-               name="specs[${si}][value]"
-               class="form-control"
-               placeholder="p.sh. 6.7&quot; OLED">
-
-        <button type="button" onclick="removeSpec(this)" class="rm-btn">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-    `;
-
+        <input type="text" name="specs[${si}][key]" class="form-control" value="${keyName}" placeholder="p.sh. Ekrani">
+        <input type="text" name="specs[${si}][value]" class="form-control" placeholder="p.sh. 6.7&quot; OLED">
+        <button type="button" onclick="removeSpec(this)" class="rm-btn"><i class="fa-solid fa-xmark"></i></button>`;
     document.getElementById('specsList').appendChild(row);
-
     setTimeout(() => {
         const inputs = row.querySelectorAll('input');
         (keyName ? inputs[1] : inputs[0])?.focus();
@@ -1082,7 +786,6 @@ function addSpec(keyName = '') {
 
 function removeSpec(button) {
     button.closest('.spec-row')?.remove();
-
     if (!document.querySelectorAll('#specsList .spec-row').length) {
         const empty = document.getElementById('specsEmpty');
         if (empty) empty.style.display = 'block';
@@ -1092,7 +795,6 @@ function removeSpec(button) {
 // ════════════ FOTO EKZISTUESE TË PRODUKTIT ════════════
 function deleteImage(imgId, productId) {
     if (!confirm('Fshi këtë foto?')) return;
-
     fetch(`/admin/products/${productId}/images/${imgId}`, {
         method: 'DELETE',
         headers: {
@@ -1102,22 +804,16 @@ function deleteImage(imgId, productId) {
     })
     .then(r => r.json())
     .then(data => {
-        if (data.success) {
-            const el = document.getElementById(`imgWrap${imgId}`);
-            if (!el) return;
-
-            el.style.cssText += ';opacity:0;transform:scale(0.8);transition:all .3s;';
-
-            setTimeout(() => {
-                el.remove();
-
-                const remaining = document.querySelectorAll('[id^="imgWrap"]').length;
-                const sE = document.getElementById('statExisting');
-                if (sE) sE.textContent = remaining;
-
-                updateStats();
-            }, 300);
-        }
+        if (!data.success) return;
+        const el = document.getElementById(`imgWrap${imgId}`);
+        if (!el) return;
+        el.style.cssText += ';opacity:0;transform:scale(0.8);transition:all .3s;';
+        setTimeout(() => {
+            el.remove();
+            const sE = document.getElementById('statExisting');
+            if (sE) sE.textContent = document.querySelectorAll('[id^="imgWrap"]').length;
+            updateStats();
+        }, 300);
     });
 }
 
@@ -1131,209 +827,228 @@ function setPrimary(imgId, productId) {
     })
     .then(r => r.json())
     .then(data => {
-        if (data.success) {
-            document.querySelectorAll('.existing-primary-badge').forEach(b => b.remove());
-            document.querySelectorAll('.existing-img-card').forEach(c => c.classList.remove('is-primary'));
-
-            const wrap = document.getElementById(`imgWrap${imgId}`);
-            if (wrap) {
-                wrap.classList.add('is-primary');
-
-                const badge = document.createElement('span');
-                badge.className = 'existing-primary-badge';
-                badge.innerHTML = '<i class="fa-solid fa-star" style="font-size:8px;"></i> KRYESORE';
-                wrap.appendChild(badge);
-
-                const starBtn = wrap.querySelector('.img-action-primary');
-                if (starBtn) starBtn.remove();
-            }
+        if (!data.success) return;
+        document.querySelectorAll('.existing-primary-badge').forEach(b => b.remove());
+        document.querySelectorAll('.existing-img-card').forEach(c => c.classList.remove('is-primary'));
+        const wrap = document.getElementById(`imgWrap${imgId}`);
+        if (wrap) {
+            wrap.classList.add('is-primary');
+            const badge = document.createElement('span');
+            badge.className = 'existing-primary-badge';
+            badge.innerHTML = '<i class="fa-solid fa-star" style="font-size:8px;"></i> KRYESORE';
+            wrap.appendChild(badge);
+            wrap.querySelector('.img-action-primary')?.remove();
         }
     });
 }
 
-// ════════════ CATEGORY -> BRAND ════════════
+// ════════════ DOMContentLoaded ════════════
 document.addEventListener('DOMContentLoaded', function () {
-    const categorySelect = document.getElementById('categorySelect');
-    const brandSelect = document.getElementById('brandSelect');
 
-    if (!categorySelect || !brandSelect) return;
-
-    categorySelect.addEventListener('change', function () {
-        const categoryId = this.value;
-        const currentBrandId = {{ isset($product) && $product->brand_id ? $product->brand_id : 'null' }};
-
-        brandSelect.innerHTML = '<option value="">— Zgjedh brendin —</option>';
-
-        if (!categoryId) return;
-
-        fetch('/admin/get-brands-by-category/' + categoryId)
-            .then(r => r.json())
-            .then(data => {
-                data.forEach(brand => {
-                    const opt = document.createElement('option');
-                    opt.value = brand.id;
-                    opt.textContent = brand.name;
-
-                    if (brand.id === currentBrandId) {
-                        opt.selected = true;
-                    }
-
-                    brandSelect.appendChild(opt);
-                });
-            });
+    // Inicializo counter-at për variantet ekzistuese (edit mode)
+    document.querySelectorAll('.variant-color-group').forEach(group => {
+        const vi = parseInt((group.id || '').split('_')[1], 10);
+        if (isNaN(vi)) return;
+        const container = document.getElementById(`storageRows_${vi}`);
+        storageCounters[vi] = container
+            ? container.querySelectorAll('.storage-row').length
+            : group.querySelectorAll('.storage-row').length;
+        variantPhotoFiles[vi] = [];
     });
-function syncBasePrice(vi) {
-    const base = parseFloat(document.getElementById(`basePrice_${vi}`)?.value || 0);
-    // Përditëso të gjitha storage-t e tjera me çmimin bazë
-    document.querySelectorAll(`#storageRows_${vi} .storage-row`).forEach((row, idx) => {
-        if (idx === 0) return; // skip i pari
-        const nameAttr = row.querySelector('[name*="extra_price"]')?.getAttribute('name');
-        if (!nameAttr) return;
-        const match = nameAttr.match(/storages\]\[(\d+)\]/);
-        if (!match) return;
-        const si = match[1];
 
-        // Përditëso hidden input
-        const hidden = document.getElementById(`basePriceHidden_${vi}_${si}`);
-        if (hidden) hidden.value = base;
+    // ── CATEGORY → BRAND ──
+    const categorySelect  = document.getElementById('categorySelect');
+    const brandSelect     = document.getElementById('brandSelect');
+    const linkedCard      = document.getElementById('linkedProductsCard');
+    const accessoryCatIds = (window.ACCESSORY_CAT_IDS || []).map(String);
 
-        // Shfaq vlerën
-        const display = document.getElementById(`baseDisplay_${vi}_${si}`);
-        if (display) display.textContent = base > 0 ? base.toFixed(2) + ' €' : '—';
+    function toggleLinkedCard() {
+        if (!linkedCard) return;
+        const isAccessory = accessoryCatIds.includes(String(categorySelect?.value || ''));
+        linkedCard.style.display = isAccessory ? '' : 'none';
+    }
 
-        // Rillogarit totalin
-        calcTotal(vi, parseInt(si));
+    if (categorySelect) {
+        categorySelect.addEventListener('change', function () {
+            const categoryId     = this.value;
+            const currentBrandId = {{ isset($product) && $product->brand_id ? $product->brand_id : 'null' }};
+
+            if (brandSelect) {
+                brandSelect.innerHTML = '<option value="">— Zgjedh brendin —</option>';
+                if (categoryId) {
+                    fetch('/admin/get-brands-by-category/' + categoryId)
+                        .then(r => r.json())
+                        .then(brands => {
+                            brands.forEach(brand => {
+                                const opt = document.createElement('option');
+                                opt.value = brand.id;
+                                opt.textContent = brand.name;
+                                if (brand.id === currentBrandId) opt.selected = true;
+                                brandSelect.appendChild(opt);
+                            });
+                        })
+                        .catch(() => {});
+                }
+            }
+
+            // Nënkategoritë
+            const subcatGroup  = document.getElementById('subcategoryGroup');
+            const subcatSelect = document.getElementById('subcategorySelect');
+            if (subcatGroup && subcatSelect) {
+                subcatSelect.innerHTML = '<option value="">— Zgjedh nënkategorinë —</option>';
+                subcatGroup.style.display = 'none';
+                if (categoryId) {
+                    fetch(`/admin/categories/${categoryId}/subcategories`)
+                        .then(r => r.json())
+                        .then(subs => {
+                            if (!subs.length) return;
+                            const currentSub = '{{ $product->subcategory ?? '' }}';
+                            subs.forEach(name => {
+                                const opt = document.createElement('option');
+                                opt.value = name;
+                                opt.textContent = name;
+                                if (name === currentSub) opt.selected = true;
+                                subcatSelect.appendChild(opt);
+                            });
+                            subcatGroup.style.display = '';
+                        })
+                        .catch(() => {});
+                }
+            }
+
+            toggleLinkedCard();
+        });
+
+        if (categorySelect.value) categorySelect.dispatchEvent(new Event('change'));
+    }
+
+    toggleLinkedCard();
+
+    // Linked products filter
+    document.getElementById('linkedList')?.addEventListener('change', function (e) {
+        if (e.target.name !== 'linked_product_ids[]') return;
+        e.target.closest('.acc-row')?.classList.toggle('acc-row--on', e.target.checked);
+        const total   = document.querySelectorAll('input[name="linked_product_ids[]"]:checked').length;
+        const badge   = document.getElementById('linkedBadge');
+        const countEl = document.getElementById('linkedCount');
+        if (countEl) countEl.textContent = total;
+        if (badge)   badge.style.display  = total > 0 ? 'inline-block' : 'none';
     });
-}
 
-function calcTotal(vi, si) {
-    const base  = parseFloat(document.getElementById(`basePrice_${vi}`)?.value || 0);
-    const row   = document.getElementById(`storageRow_${vi}_${si}`);
-    if (!row) return;
-    const extraInput = row.querySelector('[name*="extra_price"]');
-    const extra = parseFloat(extraInput?.value || 0);
-    const total = base + extra;
-    const el = document.getElementById(`total_${vi}_${si}`);
-    if (el) el.textContent = total > 0 ? `${total.toFixed(2)} €` : '—';
-}
+    window.linkedFilter = function () {
+        const q = (document.getElementById('linkedSearch')?.value || '').toLowerCase().trim();
+        document.querySelectorAll('#linkedList .acc-row').forEach(row => {
+            row.style.display = row.dataset.name.includes(q) ? '' : 'none';
+        });
+    };
 
-function refreshAllTotals(vi) {
-    document.querySelectorAll(`#storageRows_${vi} .storage-row`).forEach(row => {
-        const extraInput = row.querySelector('[name*="extra_price"]');
-        if (!extraInput) return;
-        const nameAttr = extraInput.getAttribute('name');
-        const match = nameAttr.match(/storages\]\[(\d+)\]/);
-        if (match) calcTotal(extraInput, vi, match[1]);
+    // ── Slug & Icon (categories) ──
+    const slugField = document.getElementById('slugField');
+    if (slugField) {
+        slugField.addEventListener('input', function () {
+            this.dataset.edited = 'true';
+            const preview = document.getElementById('slugPreview');
+            if (preview) preview.textContent = this.value || '...';
+        });
+        const nameInput = document.querySelector('[name="name"]');
+        if (nameInput) generateSlug(nameInput.value);
+    }
+
+    const iconInput = document.getElementById('iconInput');
+    if (iconInput) {
+        previewIcon(iconInput.value);
+        iconInput.addEventListener('paste', function (e) {
+            e.preventDefault();
+            let pasted = (e.clipboardData || window.clipboardData).getData('text').trim();
+            let name = pasted;
+            if (pasted.includes('fontawesome.com/icons/')) {
+                const m = pasted.match(/icons\/([a-z0-9-]+)/);
+                if (m) name = m[1];
+            } else if (pasted.includes('icons.getbootstrap.com/icons/')) {
+                const m = pasted.match(/icons\/([a-z0-9-]+)/);
+                if (m) name = m[1];
+            } else if (pasted.startsWith('http')) {
+                const parts = pasted.replace(/\/$/, '').split('/');
+                name = parts[parts.length - 1];
+            }
+            name = name.replace(/^fa-/, '').replace(/^bi-/, '').replace(/[?#].*$/, '');
+            this.value = name;
+            previewIcon(name);
+        });
+    }
+
+    // ── Products index ──
+    const selectAll = document.getElementById('selectAll') || document.getElementById('select-all');
+    if (selectAll) {
+        selectAll.addEventListener('change', function () {
+            document.querySelectorAll('.row-check').forEach(cb => cb.checked = this.checked);
+            if (typeof updateBulkDeleteButton === 'function') updateBulkDeleteButton();
+        });
+    }
+
+    document.querySelectorAll('.row-check').forEach(ch => {
+        ch.addEventListener('change', function () {
+            const all     = document.querySelectorAll('.row-check');
+            const checked = document.querySelectorAll('.row-check:checked');
+            if (selectAll) {
+                selectAll.checked = all.length > 0 && all.length === checked.length;
+            }
+            if (typeof updateBulkDeleteButton === 'function') updateBulkDeleteButton();
+        });
     });
-}
 
-    @if(isset($product) && $product->category_id)
-        if (categorySelect.value) {
-            categorySelect.dispatchEvent(new Event('change'));
-        }
-    @endif
+    // ── Responsive products table ──
+    function applyResponsive() {
+        const isMobile   = window.innerWidth <= 768;
+        const tableWrap  = document.querySelector('.table-wrap');
+        const mobileList = document.querySelector('.mobile-list');
+        if (!tableWrap || !mobileList) return;
+        tableWrap.style.display  = isMobile ? 'none' : '';
+        mobileList.style.display = isMobile ? 'block' : 'none';
+    }
+    applyResponsive();
+    window.addEventListener('resize', applyResponsive);
+
+    // ── calcTotal init për storage rows ekzistuese ──
+    document.querySelectorAll('.variant-color-group').forEach(group => {
+        const vi = parseInt((group.id || '').split('_')[1], 10);
+        if (isNaN(vi)) return;
+        refreshAllTotals(vi);
+    });
 });
 
 /* === products/index.blade.php === */
-// Search filter — works on desktop table AND mobile list
-    function filterTable() {
-        const q = document.getElementById('searchInput').value.toLowerCase();
-        // Desktop table rows
-        document.querySelectorAll('#productsTable tbody tr').forEach(row => {
-            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-        });
-        // Mobile cards
-        document.querySelectorAll('.mobile-product-card').forEach(card => {
-            card.style.display = card.textContent.toLowerCase().includes(q) ? '' : 'none';
-        });
+function updateBulkDeleteButton() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    const btn = document.getElementById('bulkDeleteBtn');
+    if (!btn) return;
+    if (checked.length > 0) {
+        btn.style.display = 'inline-flex';
+        btn.innerHTML = `<i class="fa-solid fa-trash"></i> Fshi të zgjedhurat (${checked.length})`;
+    } else {
+        btn.style.display = 'none';
     }
+}
 
-    // Responsive toggle — JS backup in case CSS media query fails
-    // (e.g. missing viewport meta in parent layout)
-    function applyResponsive() {
-        const isMobile = window.innerWidth <= 768;
-        const tableWrap = document.querySelector('.table-wrap');
-        const mobileList = document.querySelector('.mobile-list');
-        if (!tableWrap || !mobileList) return;
-        if (isMobile) {
-            tableWrap.style.display = 'none';
-            mobileList.style.display = 'block';
-        } else {
-            tableWrap.style.display = '';
-            mobileList.style.display = 'none';
-        }
-    }
-
-    // Run on load and on resize
-    applyResponsive();
-    window.addEventListener('resize', applyResponsive);
-    function updateBulkDeleteButton() {
-        const checked = document.querySelectorAll('.row-check:checked');
-        const btn = document.getElementById('bulkDeleteBtn');
-        if (!btn) return;
-
-        if (checked.length > 0) {
-            btn.style.display = 'inline-flex';
-            btn.innerHTML = `<i class="fa-solid fa-trash"></i> Fshi të zgjedhurat (${checked.length})`;
-        } else {
-            btn.style.display = 'none';
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const selectAll = document.getElementById('selectAll');
-        const rowChecks = document.querySelectorAll('.row-check');
-
-        if (selectAll) {
-            selectAll.addEventListener('change', function () {
-                rowChecks.forEach(ch => ch.checked = selectAll.checked);
-                updateBulkDeleteButton();
-            });
-        }
-
-        rowChecks.forEach(ch => {
-            ch.addEventListener('change', function () {
-                const all = document.querySelectorAll('.row-check');
-                const checked = document.querySelectorAll('.row-check:checked');
-
-                if (selectAll) {
-                    selectAll.checked = all.length > 0 && all.length === checked.length;
-                }
-
-                updateBulkDeleteButton();
-            });
-        });
+function submitBulkDelete() {
+    const checked = document.querySelectorAll('.row-check:checked');
+    if (!checked.length) return;
+    if (!confirm('A je i sigurt që dëshiron t\'i fshish produktet e zgjedhura?')) return;
+    const container = document.getElementById('selectedProductsContainer');
+    const form      = document.getElementById('bulkDeleteForm');
+    container.innerHTML = '';
+    checked.forEach(ch => {
+        const input = document.createElement('input');
+        input.type  = 'hidden';
+        input.name  = 'product_ids[]';
+        input.value = ch.value;
+        container.appendChild(input);
     });
+    form.submit();
+}
 
-    function submitBulkDelete() {
-        const checked = document.querySelectorAll('.row-check:checked');
-        if (!checked.length) return;
-
-        if (!confirm('A je i sigurt që dëshiron t’i fshish produktet e zgjedhura?')) {
-            return;
-        }
-
-        const container = document.getElementById('selectedProductsContainer');
-        const form = document.getElementById('bulkDeleteForm');
-
-        container.innerHTML = '';
-
-        checked.forEach(ch => {
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'product_ids[]';
-            input.value = ch.value;
-            container.appendChild(input);
-        });
-
-        form.submit();
-    }
-    const selectAll = document.getElementById('select-all');
-
-    if (selectAll) {
-        selectAll.addEventListener('change', function () {
-            document.querySelectorAll('.row-check').forEach(cb => {
-                cb.checked = this.checked;
-            });
-        });
-    }
+// calcTotal është gjithashtu përdorur nga orders
+// (orders/create e thirr direkt — ky alias siguron kompatibilitetin)
+if (typeof calcTotal === 'undefined') {
+    function calcTotal() {}
+}

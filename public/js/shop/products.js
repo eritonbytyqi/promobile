@@ -196,5 +196,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
-
+function syncMobileCheck(cb) {
+    // Sync me checkbox-in e tabelës
+    const tableCheck = document.querySelector(
+        `tbody .row-check[value="${cb.value}"]:not(.mobile-check)`
+    );
+    if (tableCheck) {
+        tableCheck.checked = cb.checked;
+        tableCheck.dispatchEvent(new Event('change'));
+    }
+}
 });

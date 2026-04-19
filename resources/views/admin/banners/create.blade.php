@@ -21,11 +21,6 @@
         </div>
     </div>
 
-    @if(session('success'))
-        <div style="margin-bottom:16px;padding:12px 14px;border-radius:10px;background:rgba(0,212,170,0.1);border:1px solid rgba(0,212,170,0.25);color:#b9ffef;">
-            {{ session('success') }}
-        </div>
-    @endif
 
     <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data">
     @csrf
@@ -228,26 +223,53 @@
             <div class="card-title">Bannerat ekzistues</div>
         </div>
         <div class="card-body">
-            @forelse($banners as $banner)
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);gap:16px;">
-                    <div>
-                        <div style="font-weight:700;">{{ $banner->title ?: 'Pa titull' }}</div>
-                        <div style="font-size:12px;color:var(--text-muted);">
-                            {{ $banner->btn_primary_text }} → {{ $banner->btn_primary_url }}
-                        </div>
-                    </div>
+           {{-- Bannerat ekzistues --}}
+@forelse($banners as $banner)
+<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--border);gap:16px;">
+    <div>
+        <div style="font-weight:700;display:flex;align-items:center;gap:8px;">
+            {{ $banner->title ?: 'Pa titull' }}
+            @if(!($banner->is_active ?? true))
+                <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:rgba(255,59,48,0.1);color:#ff3b30;">Joaktiv</span>
+            @endif
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);">
+            {{ $banner->btn_primary_text }} → {{ $banner->btn_primary_url }}
+        </div>
+    </div>
 
-                    <form action="{{ route('admin.banners.destroy', $banner->id) }}" method="POST" onsubmit="return confirm('Me e fshi këtë banner?')">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger-soft btn-sm">
-                            <i class="fa-solid fa-trash"></i> Fshi
-                        </button>
-                    </form>
-                </div>
-            @empty
-                <div style="color:var(--text-muted);">Nuk ka bannera ende.</div>
-            @endforelse
+    <div style="display:flex;gap:8px;">
+        {{-- Toggle active --}}
+        <form action="{{ route('admin.banners.destroy', $banner->id) }}" method="POST">
+            @csrf
+            @if($banner->is_active ?? true)
+                @method('PATCH')
+                <button type="submit" class="btn btn-sm"
+                        style="background:rgba(255,149,0,0.1);color:#ff9500;border:1px solid rgba(255,149,0,0.3);">
+                    <i class="fa-solid fa-eye-slash"></i> Çaktivizo
+                </button>
+            @else
+                @method('PATCH')
+                <button type="submit" class="btn btn-sm"
+                        style="background:rgba(52,199,89,0.1);color:#34c759;border:1px solid rgba(52,199,89,0.3);">
+                    <i class="fa-solid fa-eye"></i> Aktivizo
+                </button>
+            @endif
+        </form>
+
+        {{-- Fshi --}}
+        <form action="{{ route('admin.banners.destroy', $banner->id) }}" method="POST"
+              onsubmit="return confirm('Me e fshi këtë banner?')">
+            @csrf @method('DELETE')
+            <button type="submit" class="btn btn-danger-soft btn-sm">
+                <i class="fa-solid fa-trash"></i> Fshi
+            </button>
+        </form>
+    </div>
+</div>
+@empty
+    <div style="color:var(--text-muted);">Nuk ka bannera ende.</div>
+@endforelse
         </div>
     </div>
 

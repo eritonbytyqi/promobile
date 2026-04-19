@@ -186,70 +186,80 @@
         </div>
 
         {{-- MOBILE CARD LIST --}}
-        <div class="mobile-list">
-            @forelse($products as $product)
-            <div class="mobile-product-card">
-                <div class="mobile-thumb">
-                    @php $mImg = $product->images?->firstWhere('is_primary', true) ?? $product->images?->first(); @endphp
-                    @if($mImg)
-                        <img src="{{ asset('storage/'.$mImg->image_path) }}" alt="">
+    {{-- MOBILE CARD LIST --}}
+<div class="mobile-list">
+    @forelse($products as $product)
+    <div class="mobile-product-card">
+        <div style="display:flex;align-items:center;gap:12px;">
+
+            {{-- Checkbox --}}
+            <input type="checkbox" class="row-check"
+                   value="{{ $product->id }}"
+                   style="width:18px;height:18px;flex-shrink:0;accent-color:#e63946;cursor:pointer;">
+
+            {{-- Foto --}}
+            <div class="mobile-thumb" style="flex-shrink:0;">
+                @php $mImg = $product->images?->firstWhere('is_primary', true) ?? $product->images?->first(); @endphp
+                @if($mImg)
+                    <img src="{{ asset('storage/'.$mImg->image_path) }}" alt="">
+                @else
+                    <i class="fa-solid fa-box"></i>
+                @endif
+            </div>
+
+            {{-- Info --}}
+            <div class="mobile-info" style="flex:1;min-width:0;">
+                <div class="mobile-name">{{ $product->name }}</div>
+                <div class="mobile-meta">
+                    <span>{{ $product->category->name ?? '—' }}</span>
+                    <span style="color:#ccc;">·</span>
+                    <span>{{ $product->brand->name ?? '—' }}</span>
+                </div>
+                <div class="mobile-row">
+                    <span class="mobile-price">{{ number_format($product->price, 2) }} €</span>
+                    @if(($product->stock ?? 0) > 10)
+                        <span class="badge badge-success">{{ $product->stock }}</span>
+                    @elseif(($product->stock ?? 0) > 0)
+                        <span class="badge badge-warning">{{ $product->stock }}</span>
                     @else
-                        <i class="fa-solid fa-box"></i>
+                        <span class="badge badge-danger">Skadon</span>
+                    @endif
+                    @if($product->is_active ?? true)
+                        <span class="badge badge-success">Aktiv</span>
+                    @else
+                        <span class="badge badge-muted">Joaktiv</span>
                     @endif
                 </div>
-                <div class="mobile-info">
-                    <div class="mobile-name">
-                        @if($product->featured)
-                            <i class="fa-solid fa-star" style="color:var(--accent2);font-size:10px;margin-right:4px;"></i>
-                        @endif
-                        {{ $product->name }}
-                    </div>
-                    <div class="mobile-meta">
-                        <span><i class="fa-solid fa-tag" style="font-size:9px;"></i> {{ $product->category->name ?? '—' }}</span>
-                        <span style="color:var(--border);">·</span>
-                        <span>{{ $product->brand->name ?? '—' }}</span>
-                    </div>
-                    <div class="mobile-row">
-                        <span class="mobile-price">{{ number_format($product->price, 2) }} €</span>
-                        @if(($product->stock ?? 0) > 10)
-                            <span class="badge badge-success" style="font-size:10px;padding:2px 7px;">{{ $product->stock }}</span>
-                        @elseif(($product->stock ?? 0) > 0)
-                            <span class="badge badge-warning" style="font-size:10px;padding:2px 7px;">{{ $product->stock }}</span>
-                        @else
-                            <span class="badge badge-danger" style="font-size:10px;padding:2px 7px;">Skadon</span>
-                        @endif
-                        @if($product->is_active ?? true)
-                            <span class="badge badge-success" style="font-size:10px;padding:2px 7px;">Aktiv</span>
-                        @else
-                            <span class="badge badge-muted" style="font-size:10px;padding:2px 7px;">Joaktiv</span>
-                        @endif
-                    </div>
-                </div>
-                <div class="mobile-actions">
-                    <a href="{{ route('admin.products.show', $product->uuid) }}" class="btn btn-ghost btn-sm btn-icon">
-                        <i class="fa-solid fa-eye"></i>
-                    </a>
-                    <a href="{{ route('admin.products.edit', $product->uuid) }}" class="btn btn-ghost btn-sm btn-icon">
-                        <i class="fa-solid fa-pen"></i>
-                    </a>
-                    <form action="{{ route('admin.products.destroy', $product->uuid) }}" method="POST" onsubmit="return confirm('Fshi produktin?')">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm btn-icon">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </form>
-                </div>
             </div>
-            @empty
-            <div class="empty-state">
-                <div class="empty-icon"><i class="fa-solid fa-box-open"></i></div>
-                <h3>Nuk ka produkte ende</h3>
-                <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
-                    <i class="fa-solid fa-plus"></i> Shto Produkt
+
+            {{-- Veprimet --}}
+            <div class="mobile-actions" style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;">
+                <a href="{{ route('admin.products.show', $product->uuid) }}" class="btn btn-ghost btn-sm btn-icon">
+                    <i class="fa-solid fa-eye"></i>
                 </a>
+                <a href="{{ route('admin.products.edit', $product->uuid) }}" class="btn btn-ghost btn-sm btn-icon">
+                    <i class="fa-solid fa-pen"></i>
+                </a>
+                <form action="{{ route('admin.products.destroy', $product->uuid) }}" method="POST"
+                      onsubmit="return confirm('Fshi produktin?')">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn btn-danger btn-sm btn-icon">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </form>
             </div>
-            @endforelse
         </div>
+    </div>
+    @empty
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fa-solid fa-box-open"></i></div>
+        <h3>Nuk ka produkte ende</h3>
+        <a href="{{ route('admin.products.create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Shto Produkt
+        </a>
+    </div>
+    @endforelse
+</div>
 
         @if(method_exists($products, 'hasPages') && $products->hasPages())
         <div class="pagination-wrap">

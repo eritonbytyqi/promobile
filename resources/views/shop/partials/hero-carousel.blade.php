@@ -37,17 +37,21 @@
 
                         <div class="hero-actions">
                             @if($banner->btn_primary_text)
-                                <a href="{{ $banner->btn_primary_url ?? url('/shop') }}"
-                                   class="hero-btn hero-btn-primary">
-                                    {{ $banner->btn_primary_text }}
-                                </a>
+                              <a href="{{ $banner->product?->uuid 
+    ? route('shop.product', $banner->product->uuid) 
+    : ($banner->btn_primary_url ?? url('/shop')) }}"
+   class="hero-btn hero-btn-primary">
+    {{ $banner->btn_primary_text }}
+</a>
                             @endif
 
                             @if($banner->btn_secondary_text)
-                                <a href="{{ $banner->btn_secondary_url ?? url('/shop') }}"
-                                   class="hero-btn hero-btn-ghost">
-                                    {{ $banner->btn_secondary_text }}
-                                </a>
+                            <a href="{{ $banner->product?->uuid
+    ? route('shop.product', $banner->product->uuid)
+    : ($banner->btn_secondary_url ?? url('/shop')) }}"
+   class="hero-btn hero-btn-ghost">
+    {{ $banner->btn_secondary_text }}
+</a>
                             @endif
                         </div>
                     </div>

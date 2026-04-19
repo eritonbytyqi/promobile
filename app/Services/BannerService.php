@@ -20,15 +20,13 @@ class BannerService
             ? $request->file('banner_video')->store('banners/videos', 'public')
             : null;
 
-        [$pUrl, $sUrl] = $request->filled('product_id')
-            ? [
-                '/cart/checkout?product_id=' . $request->product_id,
-                '/shop/' . $request->product_id
-            ]
-            : [
-                '/cart/checkout',
-                '/shop'
-            ];
+     [$pUrl, $sUrl] = $request->filled('product_id')
+    ? (function() use ($request) {
+        $product = \App\Models\Product::find($request->product_id);
+        $url = $product ? route('shop.product', $product->uuid) : '/shop';
+        return [$url, $url];
+    })()
+    : ['/shop', '/shop'];
 
         return Banner::create([
             'title'              => $request->banner_title,

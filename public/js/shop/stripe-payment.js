@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
-    const stripe = Stripe(window.stripeKey);
+    const stripe   = Stripe(window.stripeKey);
     const elements = stripe.elements();
 
     const cardElement = elements.create('card', {
@@ -18,13 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 fontSize: '15px',
                 color: '#1a1c1d',
                 fontFamily: 'Inter, sans-serif',
-                '::placeholder': {
-                    color: '#717785'
-                }
+                '::placeholder': { color: '#717785' }
             },
-            invalid: {
-                color: '#ba1a1a'
-            }
+            invalid: { color: '#ba1a1a' }
         }
     });
 
@@ -33,14 +29,13 @@ document.addEventListener('DOMContentLoaded', () => {
     cardElement.on('change', function (e) {
         const errorDiv = document.getElementById('card-errors');
         if (!errorDiv) return;
-
         errorDiv.innerHTML = e.error
             ? '<span class="material-symbols-outlined" style="font-size:14px;">error</span>' + e.error.message
             : '';
     });
 
     window.handlePayment = async function () {
-        const btn = document.getElementById('payBtn');
+        const btn     = document.getElementById('payBtn');
         const spinner = document.getElementById('paySpinner');
         const btnText = document.getElementById('payBtnText');
 
@@ -50,65 +45,73 @@ document.addEventListener('DOMContentLoaded', () => {
         spinner.style.display = 'block';
         btnText.textContent = 'Duke procesuar...';
 
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
         try {
+            // ── HAPI 1: Krijo PaymentIntent nga sesioni (pa order_id) ──
             const intentRes = await fetch('/payment/intent', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    'X-CSRF-TOKEN': csrfToken
                 },
-                body: JSON.stringify({
-                    order_id: window.orderId
-                })
+                body: JSON.stringify({})  // ✅ nuk ka order_id
             });
 
-            const intentData = await intentRes.json();
+            if (!intentRes.ok) {
+                const err = await intentRes.json();
+                throw new Error(err.error ?? 'Gabim gjatë krijimit të pagesës');
+            }
+
+            const intentData   = await intentRes.json();
             const clientSecret = intentData.client_secret;
 
+            // ── HAPI 2: Konfirmo kartën me Stripe ──
             const result = await stripe.confirmCardPayment(clientSecret, {
-                payment_method: {
-                    card: cardElement
-                }
+                payment_method: { card: cardElement }
             });
 
             if (result.error) {
-                document.getElementById('card-errors').innerHTML =
-                    '<span class="material-symbols-outlined" style="font-size:14px;">error</span>' + result.error.message;
-                btn.disabled = false;
-                spinner.style.display = 'none';
-                btnText.textContent = 'Paguaj ' + window.orderTotal + ' €';
+                showError(result.error.message, btn, spinner, btnText);
                 return;
             }
 
-            const paymentIntent = result.paymentIntent;
-
-            const confirmRes = await fetch('/payment/confirm', {
+            // ── HAPI 3: Konfirmo te backend — krijo orderin ──
+            const confirmRes = await fetch('/bank/confirm', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    'X-CSRF-TOKEN': csrfToken
                 },
                 body: JSON.stringify({
-                    order_id: window.orderId,
-                    payment_intent_id: paymentIntent.id
+                    status:             'confirmed',
+                    payment_intent_id:  result.paymentIntent.id
                 })
             });
 
             const confirmData = await confirmRes.json();
 
-            if (confirmData.success) {
-                window.location.href = window.orderSuccessUrl;
+            if (confirmData.success && confirmData.redirect) {
+                window.location.href = confirmData.redirect;
                 return;
             }
 
-            btn.disabled = false;
-            spinner.style.display = 'none';
-            btnText.textContent = 'Paguaj ' + window.orderTotal + ' €';
+            throw new Error(confirmData.error ?? 'Konfirmimi dështoi');
+
         } catch (err) {
             console.error(err);
-            btn.disabled = false;
-            spinner.style.display = 'none';
-            btnText.textContent = 'Paguaj ' + window.orderTotal + ' €';
+            showError(err.message, btn, spinner, btnText);
         }
     };
+
+    function showError(message, btn, spinner, btnText) {
+        const errorDiv = document.getElementById('card-errors');
+        if (errorDiv) {
+            errorDiv.innerHTML =
+                '<span class="material-symbols-outlined" style="font-size:14px;">error</span> ' + message;
+        }
+        btn.disabled          = false;
+        spinner.style.display = 'none';
+        btnText.textContent   = 'Paguaj ' + (window.orderTotalFormatted ?? '') + ' €';
+    }
 });

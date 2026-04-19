@@ -140,10 +140,15 @@ function getFlagHtml(country) {
 const WISH_KEY = 'shopzone_wishlist';
 
 function getWish() {
-    try { return JSON.parse(localStorage.getItem(WISH_KEY)) || {}; }
-    catch { return {}; }
+    try {
+        const data = JSON.parse(localStorage.getItem(WISH_KEY)) || {};
+        // Fshi çdo entry që nuk ka id valid
+        Object.keys(data).forEach(key => {
+            if (!data[key] || !data[key].id) delete data[key];
+        });
+        return data;
+    } catch { return {}; }
 }
-
 function saveWish(data) {
     localStorage.setItem(WISH_KEY, JSON.stringify(data));
 }

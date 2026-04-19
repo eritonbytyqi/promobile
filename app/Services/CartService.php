@@ -12,7 +12,8 @@ class CartService
     public function total(): float { return collect($this->all())->sum(fn($i) => $i['price'] * $i['quantity']); }
     public function formattedTotal(): string { return number_format($this->total(), 2); }
 
-    public function add(int $productId, ?int $variantId, int $qty = 1): array
+    public function add(int $productId, ?int $variantId, int $qty = 1, array $extra = []): array
+
     {
         $product = Product::with(['images', 'variants'])->findOrFail($productId);
         $cart    = $this->all();
@@ -21,9 +22,19 @@ class CartService
 
         if (isset($cart[$key])) { $cart[$key]['quantity'] += $qty; $added = false; }
         else {
-            $cart[$key] = ['id' => $product->id, 'variant_id' => $variant?->id, 'name' => $product->name, 'price' => $this->resolvePrice($product, $variant), 'image' => $this->resolveImage($product, $variant), 'quantity' => $qty, 'color' => $variant?->color_name, 'storage' => $variant?->storage];
-            $added = true;
-        }
+               $cart[$key] = [
+        'id'         => $product->id,
+        'variant_id' => $variant?->id,
+        'name'       => $product->name,
+        'price'      => $this->resolvePrice($product, $variant),
+        // ✅ Nëse JS dërgon imazhin e ngjyrës, përdore atë — përndryshe fallback
+        'image'      => $extra['image'] ?? $this->resolveImage($product, $variant),
+        'quantity'   => $qty,
+        'color'      => $extra['color'] ?? $variant?->color_name,
+        'storage'    => $extra['storage'] ?? $variant?->storage,
+    ];
+    $added = true;
+}
 
         Session::put('cart', $cart);
         return ['added' => $added, 'cart' => $cart];

@@ -23,16 +23,16 @@
     {{-- Tabs --}}
     <div class="sw-tabs">
         <button class="sw-tab active" onclick="swTab('contact', this)">
-            <span >contacts</span> Kontakti & Kompania
+             Kontakti & Kompania
         </button>
         <button class="sw-tab" onclick="swTab('terms', this)">
-            <span >gavel</span> Kushtet
+             Kushtet
         </button>
         <button class="sw-tab" onclick="swTab('privacy', this)">
-            <span >shield</span> Privatësia
+             Privatësia
         </button>
         <button class="sw-tab" onclick="swTab('delivery', this)">
-           <span>local_shipping</span> Dërgesa
+            Dërgesa
         </button>
     </div>
 

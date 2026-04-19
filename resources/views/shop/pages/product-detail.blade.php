@@ -121,15 +121,15 @@ $hasVariants  = $variants->count() > 0 && $colorGroups->count() > 0;
                 </span>
             </div>
 
-            <div class="pm-stock">
-                <span class="pm-stock-dot {{ $initStock > 10 ? 'in' : ($initStock > 0 ? 'low' : 'out') }}" id="stockDot"></span>
-                <span id="stockText">
-                    @if($initStock > 10) Në stok — {{ $initStock }} të mbetur
-                    @elseif($initStock > 0) Vetëm {{ $initStock }} të mbetur!
-                    @else Jashtë stoku
-                    @endif
-                </span>
-            </div>
+           <div class="pm-stock" id="stockWrap" style="{{ $hasVariants ? 'display:none;' : '' }}">
+    <span class="pm-stock-dot {{ $initStock > 10 ? 'in' : ($initStock > 0 ? 'low' : 'out') }}" id="stockDot"></span>
+    <span id="stockText">
+        @if($initStock > 10) Në stok — {{ $initStock }} të mbetur
+        @elseif($initStock > 0) Vetëm {{ $initStock }} të mbetur!
+        @else Jashtë stoku
+        @endif
+    </span>
+</div>
 
             @if($hasVariants)
             <div class="pm-toast" id="variantToast">

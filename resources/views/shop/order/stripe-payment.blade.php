@@ -11,10 +11,10 @@
 
     <div class="payment-header">
         <h1>Pagesa e sigurt</h1>
-        <p>Porosia #{{ $order->order_number }}</p>
+        <p>{{ $pending['customer_name'] ?? '' }} — {{ number_format($total, 2) }} €</p>
     </div>
 
-    {{-- Test cards info (hiqe në production) --}}
+    {{-- Test cards info --}}
     <div class="test-cards">
         <div class="test-cards-title">
             <span class="material-symbols-outlined" style="font-size:15px;">info</span>
@@ -45,15 +45,15 @@
             Përmbledhja
         </div>
         <div class="order-mini">
-            @foreach($order->items as $item)
+            @foreach($cart as $item)
             <div class="order-mini-row">
-                <span>{{ $item->product->name ?? 'Produkt' }} × {{ $item->quantity }}</span>
-                <span>{{ number_format($item->subtotal, 2) }} €</span>
+                <span>{{ $item['name'] }} × {{ $item['quantity'] }}</span>
+                <span>{{ number_format($item['price'] * $item['quantity'], 2) }} €</span>
             </div>
             @endforeach
             <div class="order-mini-row total">
                 <span>Totali</span>
-                <span>{{ number_format($order->total_amount, 2) }} €</span>
+                <span>{{ number_format($total, 2) }} €</span>
             </div>
         </div>
     </div>
@@ -71,7 +71,7 @@
 
         <button id="payBtn" class="pay-btn" onclick="handlePayment()">
             <span class="material-symbols-outlined" style="font-size:18px;">lock</span>
-            <span id="payBtnText">Paguaj {{ number_format($order->total_amount, 2) }} €</span>
+            <span id="payBtnText">Paguaj {{ number_format($total, 2) }} €</span>
             <div class="spinner" id="paySpinner"></div>
         </button>
 
@@ -83,11 +83,12 @@
 
 </div>
 @endsection
+
 <script src="https://js.stripe.com/v3/"></script>
 <script>
     window.stripeKey       = "{{ config('services.stripe.key') }}";
-    window.orderId         = "{{ $order->uuid }}";
-    window.orderSuccessUrl = "{{ url('/orders/success/' . $order->uuid) }}";
-    window.orderTotal      = "{{ number_format($order->total_amount, 2) }}";
+    window.orderTotal      = {{ (int) round($total * 100) }}; // në cents për Stripe
+    window.bankConfirmUrl  = "{{ route('bank.confirm') }}";
+    window.csrfToken       = "{{ csrf_token() }}";
 </script>
 <script src="{{ asset('js/shop/stripe-payment.js') }}"></script>

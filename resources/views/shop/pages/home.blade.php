@@ -127,32 +127,37 @@
                     @endif
 
                     <div class="pm-product-footer">
-                        <div>
-                            @if($pHasSale)
-                                <span class="pm-product-old">{{ number_format($product->price, 2) }} €</span>
-                            @endif
+    <div>
+        @if($pHasSale)
+            <span class="pm-product-old">{{ number_format($product->price, 2) }} €</span>
+        @endif
 
-                            <span class="pm-product-price">
-                                @if($product->variants && $product->variants->count() > 0)
-                                    <span style="font-size:11px;font-weight:500;color:#6e6e73;">nga</span>
-                                @endif
-                                {{ number_format($pPrice, 2) }} €
-                            </span>
-                        </div>
+        <span class="pm-product-price">
+            @if($product->variants && $product->variants->count() > 0)
+                <span style="font-size:11px;font-weight:500;color:#6e6e73;">nga</span>
+            @endif
+            {{ number_format($pPrice, 2) }} €
+        </span>
+    </div>
 
-                  <button
-    class="pm-add-btn"
-    onclick="event.preventDefault(); 
     @if($product->variants && $product->variants->count() > 0)
-        window.location='{{ route('shop.product', $product->uuid) }}'
+        {{-- Ka variante — shko te detajet --}}
+        <button
+            class="pm-add-btn"
+            onclick="event.preventDefault(); window.location='{{ route('shop.product', $product->uuid) }}'"
+            type="button">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
     @else
-        addToCart({{ $product->id }}, this)
-    @endif"
-    type="button"
->
-    <i class="fa-solid fa-plus"></i>
-</button>
-                    </div>
+        {{-- Nuk ka variante — shto direkt në shportë --}}
+        <button
+            class="pm-add-btn"
+            onclick="event.preventDefault(); addToCart({{ $product->id }}, this)"
+            type="button">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    @endif
+</div>
                 </div>
             </a>
         @endforeach

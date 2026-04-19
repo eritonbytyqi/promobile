@@ -18,7 +18,7 @@
             @elseif(request('featured'))
                 Favoritet <span>Favoritet</span>
             @elseif(request('category') && $activeCategory)
-                Kategoria: <span>{{ $activeCategory->name }}</span>
+    <span>{{ $activeCategory->name }}</span>
             @else
                 Të gjitha <span>Produktet</span>
             @endif
@@ -70,35 +70,35 @@
                 <i class="fa-solid fa-layer-group" style="font-size:10px;"></i>
                 Të gjitha
             </a>
-        
+
             @foreach($categoryBrands as $brand)
             <div class="brand-dd-wrap" data-brand-id="{{ $brand->id }}">
-             <button type="button"
-        class="brand-chip {{ request('brand') == $brand->id ? 'active' : '' }}"
-        @if(isset($brandSubcategories[$brand->id]) && count($brandSubcategories[$brand->id]) > 0)
-            onclick="event.stopPropagation(); toggleDrop(this)"
-        @else
-            onclick="window.location='{{ url('/shop?category='.request('category').'&brand='.$brand->id) }}'"
-        @endif>
-    {{ $brand->name }}
-    @if(isset($brandSubcategories[$brand->id]) && count($brandSubcategories[$brand->id]) > 0)
-        <i class="fa-solid fa-chevron-down" style="font-size:9px;margin-left:5px;"></i>
-    @endif
-</button>
-               <div class="brand-dd-menu">
-    <a href="{{ url('/shop?category='.request('category').'&brand='.$brand->id) }}"
-       class="brand-dd-item {{ request('brand') == $brand->id && !request('subcategory') ? 'active' : '' }}">
-        Të gjitha
-    </a>
-    @if(isset($brandSubcategories[$brand->id]))
-        @foreach($brandSubcategories[$brand->id] as $sub)
-            <a href="{{ url('/shop?category='.request('category').'&brand='.$brand->id.'&subcategory='.$sub) }}"
-               class="brand-dd-item {{ request('subcategory') == $sub ? 'active' : '' }}">
-                {{ $sub }}
-            </a>
-        @endforeach
-    @endif
-</div>
+                <button type="button"
+                    class="brand-chip {{ request('brand') == $brand->id ? 'active' : '' }}"
+                    @if(isset($brandSubcategories[$brand->id]) && count($brandSubcategories[$brand->id]) > 0)
+                        onclick="event.stopPropagation(); toggleDrop(this)"
+                    @else
+                        onclick="window.location='{{ url('/shop?category='.request('category').'&brand='.$brand->id) }}'"
+                    @endif>
+                    {{ $brand->name }}
+                    @if(isset($brandSubcategories[$brand->id]) && count($brandSubcategories[$brand->id]) > 0)
+                        <i class="fa-solid fa-chevron-down" style="font-size:9px;margin-left:5px;"></i>
+                    @endif
+                </button>
+                <div class="brand-dd-menu">
+                    <a href="{{ url('/shop?category='.request('category').'&brand='.$brand->id) }}"
+                       class="brand-dd-item {{ request('brand') == $brand->id && !request('subcategory') ? 'active' : '' }}">
+                        Të gjitha
+                    </a>
+                    @if(isset($brandSubcategories[$brand->id]))
+                        @foreach($brandSubcategories[$brand->id] as $sub)
+                            <a href="{{ url('/shop?category='.request('category').'&brand='.$brand->id.'&subcategory='.$sub) }}"
+                               class="brand-dd-item {{ request('subcategory') == $sub ? 'active' : '' }}">
+                                {{ $sub }}
+                            </a>
+                        @endforeach
+                    @endif
+                </div>
             </div>
             @endforeach
         </div>
@@ -160,44 +160,66 @@
                 </div>
             </div>
 
-            <div class="product-info">
-                <div>
-                    <span class="product-cat">{{ $product->category->name ?? '—' }}</span>
-                    <span class="product-brand">{{ $product->brand->name ?? '' }}</span>
-                </div>
-                <div class="product-name">{{ $product->name }}</div>
+      <div class="product-info">
+    <div>
+        <span class="product-cat">{{ $product->category->name ?? '—' }}</span>
+        <span class="product-brand">{{ $product->brand->name ?? '' }}</span>
+    </div>
 
-                @if($colors->count() > 0)
-                <div class="product-colors">
-                    @foreach($colors as $color)
-                        <span class="product-color-dot" title="{{ $color->color_name }}"
-                              style="background:{{ $color->color_hex ?? '#ccc' }};"></span>
-                    @endforeach
-                </div>
-                @endif
+    <div class="product-name">{{ $product->name }}</div>
 
-                <div class="product-footer">
-                    <div class="product-price">
-                        @if($oldPrice)<span class="old">{{ number_format($oldPrice, 2) }} €</span>@endif
-                        {{ number_format($finalPrice, 2) }} €
-                    </div>
-                    <button class="add-btn" id="btn-{{ $product->id }}"
-                            onclick="event.preventDefault(); addToCart({{ $product->id }}, this, {{ $firstVariant->id ?? 'null' }})">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
-                </div>
-            </div>
+    @if($colors->count() > 0)
+    <div class="product-colors">
+        @foreach($colors as $color)
+            <span class="product-color-dot" title="{{ $color->color_name }}"
+                  style="background:{{ $color->color_hex ?? '#ccc' }};"></span>
+        @endforeach
+    </div>
+    @endif
+
+    {{-- ✅ Çmimi dhe butoni në footer --}}
+<div class="product-footer">
+    <div class="product-price">
+        @if($oldPrice)
+            <span class="old">{{ number_format($oldPrice, 2) }} €</span>
+        @endif
+        @if($product->variants && $product->variants->count() > 0)
+            <span style="font-size:11px;font-weight:500;color:#6e6e73;margin-right:2px;">nga</span>
+        @endif
+        {{ number_format($finalPrice, 2) }} €
+    </div>
+
+    @if($product->variants && $product->variants->count() > 0)
+        {{-- Ka variante — shko te detajet --}}
+        <button
+            class="add-btn"
+            onclick="event.preventDefault(); window.location='{{ route('shop.product', $product->uuid) }}'"
+            type="button">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    @else
+        {{-- Nuk ka variante — shto direkt në shportë --}}
+        <button
+            class="add-btn"
+            id="btn-{{ $product->id }}"
+            onclick="event.preventDefault(); addToCart({{ $product->id }}, this)"
+            type="button">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    @endif
+</div>
+</div>
         </a>
 
         @empty
-         @if(!request('featured'))
-        <div class="empty-state">
-            <i class="fa-solid fa-box-open"></i>
-            <h3>Nuk u gjetën produkte</h3>
-            <p>Provo të ndryshosh filtrat ose kërkon diçka tjetër.</p>
-            <a href="{{ url('/shop') }}" class="btn btn-outline" style="margin-top:20px;display:inline-flex;">Pastro filtrat</a>
-        </div>
-    @endif
+            @if(!request('featured'))
+            <div class="empty-state">
+                <i class="fa-solid fa-box-open"></i>
+                <h3>Nuk u gjetën produkte</h3>
+                <p>Provo të ndryshosh filtrat ose kërkon diçka tjetër.</p>
+                <a href="{{ url('/shop') }}" class="btn btn-outline" style="margin-top:20px;display:inline-flex;">Pastro filtrat</a>
+            </div>
+            @endif
         @endforelse
     </div>
 
@@ -231,4 +253,5 @@
     window.currentBrand       = "{{ request('brand') }}";
     window.currentSubcat      = "{{ request('subcategory') }}";
 </script>
-<script src="{{ asset('js/shop/product/product-main.js') }}"></script>@endpush
+<script src="{{ asset('js/shop/product/product-main.js') }}"></script>
+@endpush

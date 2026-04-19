@@ -191,6 +191,11 @@ function switchMainImgDirect(src) {
 }
 
 function refreshUI() {
+       const stockWrap = document.getElementById('stockWrap');
+    if (stockWrap) {
+        stockWrap.style.display = (selColorName || colorGroups.length === 0) ? '' : 'none';
+    }
+
     const group = getGroup(selColorName);
     const storage = getStorage(group, selVariantId);
     const basePrice = group?.storages?.[0]?.base_price ?? BASE_PRICE;
@@ -352,6 +357,13 @@ window.addCurrentProductToCart = function(button) {
     const payload = { product_id: PRODUCT_ID, quantity: 1 };
 
     if (storage) payload.variant_id = storage.id;
+
+    // ✅ Këto 3 rreshta shto i
+    if (group && group.images && group.images.length > 0) {
+        payload.image = group.images[0];
+    }
+    if (selColorName) payload.color = selColorName;
+    if (storage?.storage) payload.storage = storage.storage;
 
     fetch('/cart/add', {
         method: 'POST',

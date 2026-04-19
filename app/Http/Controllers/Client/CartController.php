@@ -27,13 +27,34 @@ class CartController extends Controller
        }
     public function sidebar()  { return response()->json($this->buildResponse($this->cart->all())); }
 
-    public function add(Request $request)
-    {
-        $request->validate(['product_id' => 'required|exists:products,id', 'variant_id' => 'nullable|exists:product_variants,id', 'quantity' => 'nullable|integer|min:1|max:99']);
-        ['added' => $added, 'cart' => $cart] = $this->cart->add($request->product_id, $request->variant_id, $request->quantity ?? 1);
-        return response()->json([...$this->buildResponse($cart), 'success' => true, 'message' => $added ? 'Produkti u shtua!' : 'Sasia u rrit!']);
-    }
+public function add(Request $request)
+{
+    $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'variant_id' => 'nullable|exists:product_variants,id',
+        'quantity'   => 'nullable|integer|min:1|max:99',
+    ]);
 
+    // ✅ Shto këto 3 rreshta
+    $extra = [
+        'image'   => $request->input('image'),
+        'color'   => $request->input('color'),
+        'storage' => $request->input('storage'),
+    ];
+
+    ['added' => $added, 'cart' => $cart] = $this->cart->add(
+        $request->product_id,
+        $request->variant_id,
+        $request->quantity ?? 1,
+        $extra   // ✅ kalon te CartService
+    );
+
+    return response()->json([
+        ...$this->buildResponse($cart),
+        'success' => true,
+        'message' => $added ? 'Produkti u shtua!' : 'Sasia u rrit!',
+    ]);
+}
     public function update(Request $request)
     {
         $request->validate(['key' => 'required|string', 'quantity' => 'required|integer|min:1|max:99']);

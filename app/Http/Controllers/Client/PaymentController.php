@@ -11,33 +11,35 @@ class PaymentController extends Controller
 {
     public function __construct(protected PaymentService $payment) {}
 
-    // Stripe payment page — UUID në URL
-    public function page(string $uuid)
-    {
-        $order = Order::where('uuid', $uuid)->with('items.product')->firstOrFail();
-        return view('shop.order.stripe-payment', compact('order'));
-    }
-
+    // ✅ Krijo PaymentIntent nga sesioni — pa order
     public function createIntent(Request $request)
     {
-        // order_id tani është uuid
-        $request->validate(['order_id' => 'required|exists:orders,uuid']);
-        try {
-            $order = Order::where('uuid', $request->order_id)->firstOrFail();
-            return response()->json(['client_secret' => $this->payment->createIntent($order)]);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
+        $pending = session('pending_checkout');
 
-    public function confirm(Request $request)
-    {
+        if (!$pending) {
+            return response()->json(['error' => 'Sesioni skadoi. Kthehu te checkout.'], 422);
+        }
+
         try {
-            $order = Order::where('uuid', $request->order_id)->firstOrFail();
-            if (!$this->payment->confirmPayment($order, $request->payment_intent_id)) {
-                return response()->json(['success' => false, 'message' => 'Pagesa nuk u krye.'], 400);
-            }
-            return response()->json(['success' => true]);
+            $cart         = session('cart', []);
+            $total        = collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']);
+            $shippingCost = (float) ($pending['shipping_cost'] ?? 0);
+            $totalAmount  = $total + $shippingCost;
+
+            // Krijo PaymentIntent me Stripe
+            \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
+
+            $intent = \Stripe\PaymentIntent::create([
+                'amount'   => (int) round($totalAmount * 100), // në cents
+                'currency' => 'eur',
+                'metadata' => [
+                    'customer_name'  => $pending['customer_name'] ?? '',
+                    'customer_email' => $pending['customer_email'] ?? '',
+                ],
+            ]);
+
+            return response()->json(['client_secret' => $intent->client_secret]);
+
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -56,8 +58,14 @@ class PaymentController extends Controller
                 $this->payment->refundFull($order);
                 return back()->with('success', 'U kthye e gjithë pagesa prej ' . number_format($order->total_amount, 2) . ' € te klienti!');
             }
-            $refunded = $this->payment->refundPartial($order, $this->payment->calculateRefundAmount($request->items));
+
+            $refunded = $this->payment->refundPartial(
+                $order,
+                $this->payment->calculateRefundAmount($request->items)
+            );
+
             return back()->with('success', "U kthyen {$refunded} € te klienti me sukses!");
+
         } catch (\InvalidArgumentException $e) {
             return back()->with('error', $e->getMessage());
         } catch (\Exception $e) {

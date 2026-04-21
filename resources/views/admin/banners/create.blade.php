@@ -13,7 +13,7 @@
     <div class="pf-header">
         <div>
             <div class="pf-breadcrumb">
-                <a href="{{ url('/') }}">Dashboard</a>
+                <a href="{{ url('/admin') }}">Dashboard</a>
                 <i class="fa-solid fa-chevron-right"></i>
                 <span>Bannerat</span>
             </div>

@@ -109,20 +109,24 @@ function submitStatus(sendEmail) {
     const subject = document.getElementById('modalEmailSubject').value;
     const body = document.getElementById('modalEmailBody').value;
 
-    fetch(`/admin/orders/${currentOrderUuid}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            _method: 'PUT',
-            status: status,
-            send_email: sendEmail,
-            email_subject: subject,
-            email_body: body,
-        })
-    }).then(() => {
-        closeStatusModal();
-        window.location.reload();
-    });
+ fetch(`/admin/orders/${currentOrderUuid}`, {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        'Accept': 'application/json'
+    },
+    body: JSON.stringify({
+        _method: 'PUT',
+        status: status,
+        send_email: sendEmail,
+        email_subject: subject,
+        email_body: body,
+    })
+}).then(() => {
+    closeStatusModal();
+    window.location.reload();
+});
 }
 
 document.getElementById('statusModal').addEventListener('click', function(e) {

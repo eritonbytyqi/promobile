@@ -6,19 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
+    /**
+     * Run the migrations.
+     */
+     public function up(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            if (!Schema::hasColumn('products', 'featured')) {
-                $table->boolean('featured')->default(false)->after('price');
-            }
+            $table->string('stock_display_text')->nullable()->after('low_stock_threshold');
         });
     }
 
     public function down(): void
     {
         Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('featured');
+            $table->dropColumn('stock_display_text');
         });
     }
 };

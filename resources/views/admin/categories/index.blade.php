@@ -8,7 +8,7 @@
 @section('page-title', 'Kategoritë')
 
 @section('breadcrumb')
-    <a href="{{ url('/') }}">Dashboard</a>
+    <a href="{{ url('/admin') }}">Dashboard</a>
     <i class="fa-solid fa-chevron-right" style="font-size:9px;"></i>
     <span>Kategoritë</span>
 @endsection

@@ -17,7 +17,18 @@
 <meta name="stripe-key" content="{{ config('services.stripe.key') }}">
 
         <link rel="stylesheet" href="{{ asset('css/shop/layout.css') }}">
-    @stack('styles')
+        {{-- PWA --}}
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f0f0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ProMobile">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-192.png">
+<link rel="shortcut icon" href="/icons/icon-192.png">
+
+@stack('styles')
 </head>
 <body>
 
@@ -322,5 +333,13 @@
         </button>
     </div>
 </div>
+<script>
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .catch(e => console.log('SW error:', e));
+    });
+}
+</script>
 </body>
 </html>

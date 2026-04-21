@@ -121,12 +121,22 @@ $hasVariants  = $variants->count() > 0 && $colorGroups->count() > 0;
                 </span>
             </div>
 
-           <div class="pm-stock" id="stockWrap" style="{{ $hasVariants ? 'display:none;' : '' }}">
-    <span class="pm-stock-dot {{ $initStock > 10 ? 'in' : ($initStock > 0 ? 'low' : 'out') }}" id="stockDot"></span>
+@php
+    $stockDisplayText = $product->stock_display_text;
+    $isPreorderAvailable = (bool)($product->allow_preorder ?? false) && (int)($product->stock ?? 0) <= 0;
+@endphp
+
+<div class="pm-stock" id="stockWrap" style="{{ $hasVariants ? 'display:none;' : '' }}">
+    <span class="pm-stock-dot {{ ($product->stock ?? 0) > 0 ? 'in' : ($isPreorderAvailable ? 'low' : 'out') }}" id="stockDot"></span>
     <span id="stockText">
-        @if($initStock > 10) Në stok — {{ $initStock }} të mbetur
-        @elseif($initStock > 0) Vetëm {{ $initStock }} të mbetur!
-        @else Jashtë stoku
+        @if(!empty($stockDisplayText))
+            {{ $stockDisplayText }}
+        @elseif(($product->stock ?? 0) > 0)
+            Vetëm {{ $product->stock }} të mbetur!
+        @elseif($isPreorderAvailable)
+            Pre-order — {{ $product->preorder_note ?? 'Disponueshëm për porosi' }}
+        @else
+            Jashtë stoku
         @endif
     </span>
 </div>
@@ -162,14 +172,16 @@ $hasVariants  = $variants->count() > 0 && $colorGroups->count() > 0;
 
             {{-- BUTONI --}}
             <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
-                <button id="orderBtn" type="button"
-                        class="pm-btn-primary {{ ($initStock <= 0 || $hasVariants) ? 'disabled' : '' }}"
-{{ ($initStock <= 0 || $hasVariants) ? 'disabled' : '' }}
-                        style="margin-bottom:0;flex:1;"
-                        onclick="addCurrentProductToCart(this)">
-                    <i class="fa-solid fa-bag-shopping"></i>
-                    <span id="orderBtnText">Shto në shportë</span>
-                </button>
+           <button id="orderBtn" type="button"
+  class="pm-btn-primary {{ (($initStock <= 0 && !$isPreorderAvailable && empty($product->stock_display_text)) || $hasVariants) ? 'disabled' : '' }}"
+{{ (($initStock <= 0 && !$isPreorderAvailable && empty($product->stock_display_text)) || $hasVariants) ? 'disabled' : '' }}
+    onclick="addCurrentProductToCart(this)">
+    <i class="fa-solid fa-{{ $isPreorderAvailable ? 'clock' : 'bag-shopping' }}"></i>
+    <span id="orderBtnText">
+        {{ $isPreorderAvailable ? 'Pre-order' : 'Shto në shportë' }}
+    </span>
+</button>
+
 
                 <button id="detailWishBtn" type="button"
                         data-id="{{ $product->id }}"
@@ -185,10 +197,10 @@ $hasVariants  = $variants->count() > 0 && $colorGroups->count() > 0;
             </div>
 
             <div class="pm-delivery">
-                <div class="pm-delivery-item">
+                <!-- <div class="pm-delivery-item">
                     <i class="fa-solid fa-truck" style="color:var(--pm-blue);"></i>
                     {{ $dergesa ? $dergesa->spec_value : 'Dërgesa Falas' }}
-                </div>
+                </div> -->
                 @if($garancia)
                 <div class="pm-delivery-item">
                     <i class="fa-solid fa-shield-halved" style="color:var(--pm-blue);"></i>
@@ -221,16 +233,19 @@ $hasVariants  = $variants->count() > 0 && $colorGroups->count() > 0;
                     <span class="dk">Brendi</span><span class="dv">{{ $product->brand->name }}</span>
                 </div>
                 @endif
-                @if(!$hasVariants)
-                <div class="pm-detail-row">
-                    <span class="dk">Stoku</span>
-                    <span class="dv">
-                        @if(($product->stock ?? 0) > 0) {{ $product->stock }} copë
-                        @else <span style="color:#ff3b30;">Jashtë stoku</span>
-                        @endif
-                    </span>
-                </div>
-                @endif
+              @if(!$hasVariants && !$isPreorderAvailable)
+    <div class="pm-detail-row">
+        <span class="dk">Stoku</span>
+        <span class="dv">
+            @if(($product->stock ?? 0) > 0)
+                {{ $product->stock }} copë
+            @else
+                <span style="color:#ff3b30;">Jashtë stoku</span>
+            @endif
+        </span>
+    </div>
+@endif
+
                 <div class="pm-detail-row">
                     <span class="dk">Statusi</span>
                     <span class="dv">
@@ -322,13 +337,19 @@ $hasVariants  = $variants->count() > 0 && $colorGroups->count() > 0;
 @endsection
 
 <script>
-    window.productDetailData = {
-        colorGroups: @json($colorGroups),
-        productId: {{ $product->id }},
-        basePrice: {{ (float) $basePrice }},
-        baseOld: {!! $baseOldPrice ? (float)$baseOldPrice : 'null' !!},
-        baseStock: {{ (int)($product->stock ?? 0) }},
-        productImages: [
+window.productDetailData = {
+    colorGroups: @json($colorGroups),
+    productId: {{ $product->id }},
+    basePrice: {{ (float) $basePrice }},
+    baseOld: {!! $baseOldPrice ? (float)$baseOldPrice : 'null' !!},
+baseStock: {{ (int)($product->stock ?? 0) }},
+stockDisplayText: @json($product->stock_display_text),
+
+allowPreorder: {{ $isPreorderAvailable ? 'true' : 'false' }},
+preorderNote: @json($product->preorder_note ?? 'Disponueshëm për porosi'),
+
+
+    productImages: [
             @foreach($productImages as $img)
                 '{{ asset('storage/'.$img->image_path) }}',
             @endforeach

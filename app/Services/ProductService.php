@@ -9,38 +9,70 @@ use App\Models\ProductSpec;
 use App\Models\ProductVariantImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Cache;
 class ProductService
 {
     public function store(Request $request): Product
     {
-        $product = Product::create(array_merge(
-            $request->only(['name', 'description', 'price', 'sale_price', 'stock', 'category_id', 'brand_id', 'subcategory']),
-            [
-                'stock'     => $request->stock ?? 0,
-                'featured'  => $request->boolean('featured'),
-                'is_active' => $request->boolean('is_active'),
-            ]
-        ));
+  $product = Product::create(array_merge(
+    $request->only([
+        'name',
+        'description',
+        'price',
+        'sale_price',
+        'stock',
+        'category_id',
+        'brand_id',
+        'subcategory',
+        'stock_display_text',
+    ]),
+    [
+        'stock'               => $request->stock ?? 0,
+        'low_stock_threshold' => $request->low_stock_threshold ?? 10,
+        'stock_display_text'  => $request->stock_display_text ?? null,
+        'allow_preorder'      => $request->boolean('allow_preorder'),
+        'preorder_note'       => $request->preorder_note ?? null,
+        'featured'            => $request->boolean('is_featured'),
+        'is_active'           => $request->boolean('is_active'),
+    ]
+));
+
 
         $this->saveImages($request, $product);
         $this->saveSpecs($request, $product);
         $this->saveVariants($request, $product);
         $this->saveLinkedProducts($request, $product);
-
+ Cache::forget('home_data');
+    Cache::forget('all_categories');
+    Cache::forget('all_brands');
         return $product;
     }
 
     public function update(Request $request, Product $product): Product
     {
-        $product->update(array_merge(
-            $request->only(['name', 'description', 'price', 'sale_price', 'stock', 'category_id', 'brand_id', 'subcategory']),
-            [
-                'stock'     => $request->stock ?? 0,
-                'featured'  => $request->boolean('featured'),
-                'is_active' => $request->boolean('is_active'),
-            ]
-        ));
+$product->update(array_merge(
+    $request->only([
+        'name',
+        'description',
+        'price',
+        'sale_price',
+        'stock',
+        'category_id',
+        'brand_id',
+        'subcategory',
+        'stock_display_text',
+    ]),
+    [
+        'stock'               => $request->stock ?? 0,
+        'low_stock_threshold' => $request->low_stock_threshold ?? 10,
+        'stock_display_text'  => $request->stock_display_text ?? null,
+        'allow_preorder'      => $request->boolean('allow_preorder'),
+        'preorder_note'       => $request->preorder_note ?? null,
+        'featured'            => $request->boolean('is_featured'),
+        'is_active'           => $request->boolean('is_active'),
+    ]
+));
+
 
         $this->saveImages($request, $product, isUpdate: true);
 
@@ -55,6 +87,9 @@ class ProductService
         $this->saveVariants($request, $product);
 
         $this->saveLinkedProducts($request, $product);
+             Cache::forget('home_data');
+    Cache::forget('all_categories');
+    Cache::forget('all_brands');
 
         return $product->fresh();
     }
@@ -78,6 +113,9 @@ class ProductService
 
     public function delete(Product $product): string
     {
+          Cache::forget('home_data');
+    Cache::forget('all_categories');
+    Cache::forget('all_brands');
         if ($product->orderItems()->exists()) {
             $product->update(['is_active' => false]);
             return 'deactivated';

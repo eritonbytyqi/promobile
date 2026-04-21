@@ -17,7 +17,11 @@ class Product extends Model
         'sale_price',
         'stock',
         'is_active',
+          'preorder_note',  
+          'allow_preorder',
          'subcategory',
+         'stock_display_limit',
+         'stock_display_text',
            'featured',
          'uuid',
     ];

@@ -329,12 +329,39 @@
 }
 @media (max-width: 768px) {
     .dash-grid     { grid-template-columns: 1fr; }
-    .ph-value      { font-size: 30px; }
-    .ph-right      { gap: 18px; }
-}
-@media (max-width: 480px) {
-    .stats-grid    { grid-template-columns: 1fr 1fr; }
+    .stats-grid    { grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* Profit banner vertical */
+    .profit-highlight {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px;
+    }
+    .ph-value { font-size: 28px; }
+    .ph-right { gap: 16px; width: 100%; justify-content: space-between; }
+    .ph-divider { display: none; }
+
+    /* Quick actions 2 col */
     .quick-actions { grid-template-columns: repeat(2, 1fr); }
+
+    /* Orders table — scroll horizontal */
+    .orders-table { display: block; overflow-x: auto; white-space: nowrap; }
+
+    /* Stat card smaller */
+    .stat-card { padding: 14px 16px; }
+    .stat-value { font-size: 22px; }
+    .stat-icon { width: 36px; height: 36px; font-size: 14px; margin-bottom: 10px; }
+}
+
+@media (max-width: 480px) {
+    .stats-grid    { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .quick-actions { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .stat-sub      { display: none; }
+    .ph-value      { font-size: 24px; }
+    .ph-right      { gap: 12px; }
+    .ph-stat-val   { font-size: 17px; }
+    .quick-action-btn { padding: 14px 8px; font-size: 11px; }
+    .quick-action-btn i { width: 36px; height: 36px; font-size: 16px; }
 }
 </style>
 @endpush
@@ -612,7 +639,8 @@
                     <div class="prod-list-cat">{{ $prod->category->name ?? '—' }}</div>
                 </div>
                 <div class="prod-list-price">{{ number_format($prod->price ?? 0, 2) }} €</div>
-                <a href="{{ url('/admin/products/'.$prod->id.'/edit') }}"
+            <a href="{{ route('admin.products.edit', $prod->uuid) }}"
+
                    class="btn btn-ghost btn-sm btn-icon">
                     <i class="fa-solid fa-pen"></i>
                 </a>

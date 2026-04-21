@@ -8,16 +8,18 @@ namespace App\Services;
     use Illuminate\Http\Request;
     use Illuminate\Support\Collection;
     use Illuminate\Support\Facades\Schema;
+    use Illuminate\Support\Facades\Cache;
     class ShopService
     {
-    public function homeData(): array
-    {
+ public function homeData(): array
+{
+    return Cache::remember('home_data', 300, function() {
         $hasCategories = Schema::hasTable('categories');
-        $hasBanners = Schema::hasTable('banners');
-        $hasOffers = Schema::hasTable('offers');
-        $hasProducts = Schema::hasTable('products');
+        $hasBanners    = Schema::hasTable('banners');
+        $hasOffers     = Schema::hasTable('offers');
+        $hasProducts   = Schema::hasTable('products');
 
-        $accCat = $hasCategories ? Category::accessories()->first() : null;
+        $accCat   = $hasCategories ? Category::accessories()->first() : null;
         $accCatId = $accCat?->id;
 
         $accessories = ($accCat && $hasProducts)
@@ -31,8 +33,8 @@ namespace App\Services;
 
         return [
             'banners' => $hasBanners
-    ? Banner::with('product')->where('active', 1)->orderBy('sort_order')->get()
-    : collect(),
+                ? Banner::with('product')->where('active', 1)->orderBy('sort_order')->get()
+                : collect(),
 
             'categories' => $hasCategories
                 ? Category::orderBy('name')->get()
@@ -55,14 +57,13 @@ namespace App\Services;
             'latest' => $hasProducts
                 ? Product::with(['images', 'category', 'brand', 'variants'])
                     ->where('is_active', true)
-                    ->where('featured', 1)
                     ->when($accCatId, fn($q) => $q->where('category_id', '!=', $accCatId))
                     ->latest()
                     ->take(8)
                     ->get()
                 : collect(),
 
-            'accessories' => $accessories,
+            'accessories'         => $accessories,
             'accessoriesCategory' => $accCat,
 
             'totalProducts' => $hasProducts
@@ -73,8 +74,8 @@ namespace App\Services;
                 ? Category::count()
                 : 0,
         ];
-    }
-
+    });
+}
 
     public function productList(Request $request): array
     {
@@ -147,7 +148,7 @@ namespace App\Services;
         }
         // ────────────────────────────────────────────────────────────
 
-        $perPage = $request->featured ? 999 : 12;
+        $perPage = 12;
 
         return [
             'products'           => $query->paginate($perPage)->withQueryString(),

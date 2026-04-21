@@ -14,7 +14,7 @@
 <div class="page-header">
     <div class="page-header-left">
         <div class="breadcrumb-row">
-            <a href="{{ url('/') }}">Dashboard</a>
+            <a href="{{ url('/admin') }}">Dashboard</a>
             <i class="fa-solid fa-chevron-right"></i>
             <a href="{{ route('admin.customers.index') }}">Klientët</a>
             <i class="fa-solid fa-chevron-right"></i>

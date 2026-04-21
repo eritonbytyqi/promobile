@@ -21,12 +21,16 @@ class OrdersController extends Controller
         return Order::where('uuid', $uuid)->firstOrFail();
     }
 
-    public function index()
-    {
-        return view('admin.orders.index', [
-            'orders' => $this->repo->allPaginated()
-        ]);
-    }
+public function index(Request $request)
+{
+    return view('admin.orders.index', [
+        'orders' => $this->repo->allPaginated(
+            perPage: 20,
+            search:  $request->q,
+            status:  $request->status,
+        )
+    ]);
+}
 
     public function show(string $uuid)
     {
@@ -141,7 +145,7 @@ class OrdersController extends Controller
         }
 
         $orders = Order::with(['items.product', 'items.product.variants'])
-            ->whereIn('id', $ids)
+            ->whereIn('uuid', $ids)
             ->get();
 
         foreach ($orders as $order) {

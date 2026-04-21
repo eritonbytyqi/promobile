@@ -23,47 +23,50 @@
     </div>
 
     <div class="cs-footer" id="csFooter" style="{{ count($cart) === 0 ? 'display:none' : '' }}">
+        @php
+            $shipping  = \App\Helpers\ShippingHelper::getShipping();
+            $freeMin   = $shipping['free_min'];
+            $shipCost  = $shipping['cost'];
+            $freeText  = $shipping['free_text'];
+            $country   = $shipping['country'];
+            $cartTotal = collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']);
+
+            $flags = [
+                'kosovo'    => '🇽🇰',
+                'albania'   => '🇦🇱',
+                'macedonia' => '🇲🇰',
+                'serbia'    => '🇷🇸',
+            ];
+
+            $names = [
+                'kosovo'    => 'Kosovë',
+                'albania'   => 'Shqipëri',
+                'macedonia' => 'Maqedoni',
+                'serbia'    => 'Serbi',
+            ];
+
+            $flag = $flags[$country] ?? '🇽🇰';
+            $name = $names[$country] ?? 'Kosovë';
+        @endphp
+
         <div class="cs-subtotal">
             <span>Nëntotali</span>
-            <span class=cs-shipping"cs-subtotal-val" id="csTotal">
-                {{ number_format(collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']), 2) }} €
+            <span class="cs-subtotal-val" id="csTotal">
+                {{ number_format($cartTotal, 2) }} €
             </span>
         </div>
-@php
-    $shipping  = \App\Helpers\ShippingHelper::getShipping();
-    $freeMin   = $shipping['free_min'];
-    $shipCost  = $shipping['cost'];
-    $freeText  = $shipping['free_text'];
-    $country   = $shipping['country'];
-    $cartTotal = collect($cart)->sum(fn($i) => $i['price'] * $i['quantity']);
 
-    $flags = [
-        'kosovo'    => '🇽🇰',
-        'albania'   => '🇦🇱',
-        'macedonia' => '🇲🇰',
-        'serbia'    => '🇷🇸',
-    ];
-    $names = [
-        'kosovo'    => 'Kosovë',
-        'albania'   => 'Shqipëri',
-        'macedonia' => 'Maqedoni',
-        'serbia'    => 'Serbi',
-    ];
-    $flag = $flags[$country] ?? '🇽🇰';
-    $name = $names[$country] ?? 'Kosovë';
-@endphp
-
-<div class="cs-shipping">
-    <span style="font-size:14px;">{{ $flag }}</span>
-    @if($cartTotal >= $freeMin)
-        {{ $freeText }} — {{ $name }}
-    @else
-        Dërgesa {{ $name }} {{ number_format($shipCost, 2) }} €
-        @if($cartTotal > 0)
-            — shto {{ number_format($freeMin - $cartTotal, 2) }} € për falas
-        @endif
-    @endif
-</div>
+        <div class="cs-shipping">
+            <span style="font-size:14px;">{{ $flag }}</span>
+            @if($cartTotal >= $freeMin)
+                {{ $freeText }} — {{ $name }}
+            @else
+                Dërgesa {{ $name }} {{ number_format($shipCost, 2) }} €
+                @if($cartTotal > 0)
+                    — shto {{ number_format($freeMin - $cartTotal, 2) }} € për falas
+                @endif
+            @endif
+        </div>
 
         <a href="{{ route('cart.checkout') }}" class="cs-checkout-btn">
             Përfundo porosinë

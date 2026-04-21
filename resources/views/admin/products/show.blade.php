@@ -4,7 +4,7 @@
 @section('page-title', 'Detajet e Produktit')
 
 @section('breadcrumb')
-    <a href="{{ url('/') }}">Dashboard</a>
+    <a href="{{ url('/admin') }}">Dashboard</a>
     <i class="fa-solid fa-chevron-right" style="font-size:9px;"></i>
     <a href="{{ route('admin.products.index') }}">Produktet</a>
     <i class="fa-solid fa-chevron-right" style="font-size:9px;"></i>

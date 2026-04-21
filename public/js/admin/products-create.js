@@ -263,6 +263,13 @@ function removeStorageRow(btn) {
         container.innerHTML = `<div class="storage-empty" id="storageEmpty_${vi}">Nuk ka storage. Kliko "Shto Storage".</div>`;
     }
 }
+// ════════════ STOKU & PRE-ORDER ════════════
+window.togglePreorderNote = function () {
+    const cb   = document.getElementById('allowPreorder');
+    const wrap = document.getElementById('preorderNoteWrap');
+    if (!wrap) return;
+    wrap.style.display = cb?.checked ? '' : 'none';
+};
 
 // ════════════ SPECS ════════════
 let specIndex = window.PRODUCT_DATA?.specCount ?? 0;

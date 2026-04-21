@@ -15,51 +15,60 @@
 @section('content')
 
 {{-- STATS --}}
+{{-- STATS --}}
+@php
+    use App\Models\Order;
+    $statsOrders = Order::selectRaw('status, count(*) as count')->groupBy('status')->pluck('count', 'status');
+@endphp
 <div class="stats-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
-    @php $allOrders = $orders->getCollection(); @endphp
     <div class="stat-card">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f59e0b;margin-bottom:8px;">Në Pritje</div>
-        <div style="font-size:32px;font-weight:800;color:#1d1d1f;">{{ $allOrders->whereIn('status',['pending','awaiting_payment'])->count() }}</div>
+        <div style="font-size:32px;font-weight:800;color:#1d1d1f;">{{ ($statsOrders['pending'] ?? 0) + ($statsOrders['awaiting_payment'] ?? 0) }}</div>
         <div style="font-size:12px;color:#8e8e93;margin-top:4px;">Porosi të reja</div>
     </div>
     <div class="stat-card">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#06b6d4;margin-bottom:8px;">Konfirmuara</div>
-        <div style="font-size:32px;font-weight:800;color:#1d1d1f;">{{ $allOrders->where('status','confirmed')->count() }}</div>
+        <div style="font-size:32px;font-weight:800;color:#1d1d1f;">{{ $statsOrders['confirmed'] ?? 0 }}</div>
         <div style="font-size:12px;color:#8e8e93;margin-top:4px;">Duke u procesuar</div>
     </div>
     <div class="stat-card">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#7c6fff;margin-bottom:8px;">Dërguara</div>
-        <div style="font-size:32px;font-weight:800;color:#1d1d1f;">{{ $allOrders->where('status','shipped')->count() }}</div>
+        <div style="font-size:32px;font-weight:800;color:#1d1d1f;">{{ $statsOrders['shipped'] ?? 0 }}</div>
         <div style="font-size:12px;color:#8e8e93;margin-top:4px;">Rrugës drejt klientit</div>
     </div>
     <div class="stat-card">
         <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#10b981;margin-bottom:8px;">Të Kompletuara</div>
-        <div style="font-size:32px;font-weight:800;color:#1d1d1f;">{{ $allOrders->where('status','delivered')->count() }}</div>
+        <div style="font-size:32px;font-weight:800;color:#1d1d1f;">{{ $statsOrders['delivered'] ?? 0 }}</div>
         <div style="font-size:12px;color:#8e8e93;margin-top:4px;">Dorëzuar me sukses</div>
     </div>
 </div>
 
 {{-- ORDERS TABLE --}}
 <div class="card">
-    <div class="card-header">
-        <span class="card-title">Të Gjitha Porositë</span>
+  <div class="card-header">
+    <span class="card-title">Të Gjitha Porositë</span>
+    <form method="GET" action="{{ route('admin.orders.index') }}" id="ordersFilterForm">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
             <div style="display:flex;align-items:center;gap:8px;background:#f5f5f7;border:1px solid rgba(0,0,0,0.1);border-radius:9px;padding:0 12px;height:36px;">
                 <i class="fa-solid fa-magnifying-glass" style="color:#8e8e93;font-size:12px;"></i>
-                <input type="text" id="searchInput" placeholder="Kërko..." oninput="filterTable()"
+                <input type="text" name="q" placeholder="Kërko..."
+                       value="{{ request('q') }}"
+                       onchange="this.form.submit()"
                        style="background:none;border:none;outline:none;color:#1d1d1f;font-size:13px;width:160px;">
             </div>
-            <select id="statusFilter" class="form-select" style="width:140px;padding:8px 10px;height:36px;" onchange="filterTable()">
+            <select name="status" class="form-select" style="width:140px;padding:8px 10px;height:36px;"
+                    onchange="this.form.submit()">
                 <option value="">Të gjitha</option>
-                <option value="pending">Në Pritje</option>
-                <option value="awaiting_payment">Pret Pagesën</option>
-                <option value="confirmed">Konfirmuar</option>
-                <option value="shipped">Dërguar</option>
-                <option value="delivered">Dorëzuar</option>
-                <option value="cancelled">Anuluar</option>
+                <option value="pending"          {{ request('status') == 'pending'          ? 'selected' : '' }}>Në Pritje</option>
+                <option value="awaiting_payment" {{ request('status') == 'awaiting_payment' ? 'selected' : '' }}>Pret Pagesën</option>
+                <option value="confirmed"        {{ request('status') == 'confirmed'        ? 'selected' : '' }}>Konfirmuar</option>
+                <option value="shipped"          {{ request('status') == 'shipped'          ? 'selected' : '' }}>Dërguar</option>
+                <option value="delivered"        {{ request('status') == 'delivered'        ? 'selected' : '' }}>Dorëzuar</option>
+                <option value="cancelled"        {{ request('status') == 'cancelled'        ? 'selected' : '' }}>Anuluar</option>
             </select>
         </div>
-    </div>
+    </form>
+</div>
 
     {{-- BULK BAR --}}
     <div class="bulk-bar" id="bulkBar">
@@ -175,7 +184,12 @@
             </tbody>
         </table>
     </div>
-
+<div id="ordersMobileSelectBar" style="display:none;padding:10px 16px;border-bottom:1px solid rgba(0,0,0,0.06);align-items:center;gap:10px;background:#f9f9fb;">
+    <input type="checkbox" id="selectAllMobile" style="width:18px;height:18px;accent-color:#7c6fff;cursor:pointer;">
+    <label for="selectAllMobile" style="font-size:13px;font-weight:600;color:#1d1d1f;cursor:pointer;">
+        Zgjedh të gjitha
+    </label>
+</div>
     {{-- MOBILE CARDS --}}
     <div class="mobile-orders" style="display:none;">
         @forelse($orders as $order)
@@ -219,11 +233,12 @@
                     @if(!$isFinalM)
                     <form action="{{ url('/admin/orders/'.$order->uuid) }}" method="POST">
                         @csrf @method('PUT')
-                        <select name="status" onchange="this.form.submit()" style="padding:4px 8px;border-radius:7px;border:1px solid rgba(0,0,0,0.1);background:#f5f5f7;color:#1d1d1f;font-size:11px;">
-                            @foreach(['pending'=>'Në Pritje','awaiting_payment'=>'Pret Pagesën','confirmed'=>'Konfirmuar','shipped'=>'Dërguar','delivered'=>'Dorëzuar','cancelled'=>'Anuluar'] as $val=>$lbl)
-                                <option value="{{ $val }}" {{ $order->status===$val?'selected':'' }}>{{ $lbl }}</option>
-                            @endforeach
-                        </select>
+                     <button type="button"
+    onclick="openStatusModal('{{ $order->uuid }}', '{{ $order->status }}', '{{ addslashes($order->customer_name) }}', '{{ $order->order_number }}')"
+    style="padding:4px 8px;border-radius:7px;border:1px solid rgba(0,0,0,0.1);background:#f5f5f7;color:#1d1d1f;font-size:11px;">
+    <span style="color:{{ $smm['color'] }};">{{ $smm['label'] }}</span>
+    <i class="fa-solid fa-chevron-down" style="font-size:9px;margin-left:4px;"></i>
+</button>
                     </form>
                     @endif
 
@@ -274,51 +289,7 @@
 </div>
 @endif
 </div>
-{{-- MODAL EMAIL --}}
-<div id="statusModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:16px;padding:28px;max-width:560px;width:90%;max-height:90vh;overflow-y:auto;">
-        
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-            <h3 style="margin:0;font-size:17px;font-weight:700;color:#1d1d1f;">Ndrysho Statusin</h3>
-            <button onclick="closeStatusModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#8e8e93;">✕</button>
-        </div>
 
-        <div style="margin-bottom:16px;">
-            <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:6px;">STATUSI I RI</label>
-            <select id="modalStatus" class="form-select" style="width:100%;">
-                <option value="pending">Në Pritje</option>
-                <option value="awaiting_payment">Pret Pagesën</option>
-                <option value="confirmed">Konfirmuar</option>
-                <option value="shipped">Dërguar</option>
-                <option value="delivered">Dorëzuar</option>
-                <option value="cancelled">Anuluar</option>
-            </select>
-        </div>
-
-        <div style="background:#f5f5f7;border-radius:10px;padding:14px;margin-bottom:16px;">
-            <label style="font-size:12px;font-weight:600;color:#8e8e93;display:block;margin-bottom:8px;">
-                📧 EMAILI QË DO T'I DËRGOHET KLIENTIT (mund ta editosh)
-            </label>
-            <div style="margin-bottom:8px;">
-                <label style="font-size:11px;color:#8e8e93;">Subjekti:</label>
-                <input type="text" id="modalEmailSubject" class="form-control" style="margin-top:4px;">
-            </div>
-            <div>
-                <label style="font-size:11px;color:#8e8e93;">Mesazhi:</label>
-                <textarea id="modalEmailBody" class="form-control" rows="5" style="margin-top:4px;resize:vertical;"></textarea>
-            </div>
-        </div>
-
-        <div style="display:flex;gap:10px;">
-            <button onclick="submitStatus(true)" class="btn btn-primary" style="flex:1;justify-content:center;">
-                <i class="fa-solid fa-envelope"></i> Ndrysho & Dërgo Email
-            </button>
-            <button onclick="submitStatus(false)" class="btn btn-secondary" style="flex:1;justify-content:center;">
-                <i class="fa-solid fa-rotate"></i> Ndrysho pa Email
-            </button>
-        </div>
-    </div>
-</div>
 
 @include('admin.orders.partials.status-modal')
 @endsection

@@ -1,5 +1,3 @@
-/* resources/js/admin/orders-index.js */
-
 function filterTable() {
     const q  = document.getElementById('searchInput').value.toLowerCase();
     const st = document.getElementById('statusFilter').value;
@@ -16,30 +14,49 @@ function filterTable() {
 }
 
 function toggleAll(cb) {
-    document.querySelectorAll('.row-check').forEach(c => {
-        c.checked = cb.checked;
-        c.closest('tr,.order-mobile-card')?.classList.toggle('selected', cb.checked);
+    // Desktop — vetëm rreshtat e dukshëm
+    document.querySelectorAll('#ordersTable tbody tr').forEach(row => {
+        if (row.style.display === 'none') return;
+        const check = row.querySelector('.row-check');
+        if (check) { check.checked = cb.checked; row.classList.toggle('selected', cb.checked); }
+    });
+    // Mobile — vetëm kartat e dukshme
+    document.querySelectorAll('.order-mobile-card').forEach(card => {
+        if (card.style.display === 'none') return;
+        const check = card.querySelector('.row-check');
+        if (check) check.checked = cb.checked;
     });
     updateBulkBar();
 }
 
 function updateBulkBar() {
-    const checked = document.querySelectorAll('.row-check:checked');
-    document.getElementById('bulkCount').textContent = checked.length;
-    document.getElementById('bulkBar').classList.toggle('show', checked.length > 0);
+    // Numëro vetëm të dukshmet
+    let count = 0;
     const container = document.getElementById('bulkInputs');
     container.innerHTML = '';
-    checked.forEach(c => {
+
+    document.querySelectorAll('.row-check:checked').forEach(c => {
+        const row  = c.closest('tr');
+        const card = c.closest('.order-mobile-card');
+        const visible = (row && row.style.display !== 'none') ||
+                        (card && card.style.display !== 'none');
+        if (!visible) return;
+        count++;
         const inp = document.createElement('input');
         inp.type='hidden'; inp.name='ids[]'; inp.value=c.value;
         container.appendChild(inp);
     });
-    const all = document.querySelectorAll('.row-check');
+
+    document.getElementById('bulkCount').textContent = count;
+    document.getElementById('bulkBar').classList.toggle('show', count > 0);
+
     const sel = document.getElementById('selectAll');
     if (sel) {
-        sel.indeterminate = checked.length > 0 && checked.length < all.length;
-        sel.checked = checked.length === all.length && all.length > 0;
+        const allVisible = document.querySelectorAll('#ordersTable tbody tr:not([style*="display: none"]) .row-check').length;
+        sel.indeterminate = count > 0 && count < allVisible;
+        sel.checked = allVisible > 0 && count === allVisible;
     }
+
     document.querySelectorAll('.row-check').forEach(c => {
         c.closest('tr')?.classList.toggle('selected', c.checked);
     });
@@ -53,6 +70,41 @@ function clearSelection() {
 }
 
 function confirmBulk() {
-    const count = document.querySelectorAll('.row-check:checked').length;
+    const count = parseInt(document.getElementById('bulkCount').textContent) || 0;
     return confirm('A jeni i sigurt? Do të fshihen ' + count + ' porosi permanentisht!');
+}   
+// Responsive
+function applyResponsive() {
+    const isMobile = window.innerWidth <= 768;
+    const tableWrap = document.querySelector('.table-wrap');
+    const mobileOrders = document.querySelector('.mobile-orders');
+    const mobileBar = document.getElementById('ordersMobileSelectBar');
+    if (!tableWrap || !mobileOrders) return;
+    if (isMobile) {
+        tableWrap.style.display = 'none';
+        mobileOrders.style.display = 'block';
+        if (mobileBar) mobileBar.style.display = 'flex';
+    } else {
+        tableWrap.style.display = '';
+        mobileOrders.style.display = 'none';
+        if (mobileBar) mobileBar.style.display = 'none';
+    }
 }
+
+applyResponsive();
+window.addEventListener('resize', applyResponsive);
+
+// Select all mobile
+document.addEventListener('DOMContentLoaded', function () {
+    const selectAllMobile = document.getElementById('selectAllMobile');
+    if (selectAllMobile) {
+        selectAllMobile.addEventListener('change', function () {
+            document.querySelectorAll('.order-mobile-card').forEach(card => {
+                if (card.style.display === 'none') return;
+                const check = card.querySelector('.row-check');
+                if (check) check.checked = selectAllMobile.checked;
+            });
+            updateBulkBar();
+        });
+    }
+});

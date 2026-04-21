@@ -10,7 +10,7 @@ use App\Models\ProductImage;
 use App\Repositories\ProductRepository;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Cache;
 class ProductsController extends Controller
 {
     public function __construct(
@@ -23,15 +23,20 @@ class ProductsController extends Controller
         return Product::where('uuid', $uuid)->firstOrFail();
     }
 
-    public function index()
-    {
-        return view('admin.products.index', [
-            'products'   => $this->repo->allPaginated(),
-            'categories' => Category::all(),
-            'brands'     => Brand::all(),
-        ]);
-    }
-
+public function index(Request $request)
+{
+    return view('admin.products.index', [
+        'products'   => $this->repo->allPaginated(
+            perPage:  25,
+            search:   $request->q,
+            category: $request->category,
+            brand:    $request->brand,
+            status:   $request->status,
+        ),
+        'categories' => Cache::remember('all_categories', 3600, fn() => Category::all()),
+        'brands'     => Cache::remember('all_brands', 3600, fn() => Brand::all()),
+    ]);
+}
     public function create()
     {
         $accessoryCategoryIds = Category::accessories()->pluck('id');
@@ -222,6 +227,18 @@ class ProductsController extends Controller
             'subcategory'                      => 'nullable|string|max:100',
             'featured'                         => 'nullable|boolean',
             'is_active'                        => 'nullable|boolean',
+            'allow_preorder'      => 'nullable|boolean',
+            'preorder_note'       => 'nullable|string|max:255',
+            'low_stock_threshold' => 'nullable|string|max:100',
         ];
     }
+    public function toggle(string $uuid)
+{
+    $product = Product::where('uuid', $uuid)->firstOrFail();
+    $product->update(['is_active' => !$product->is_active]);
+
+    return redirect()->back()->with('success',
+        $product->is_active ? 'Produkti u aktivizua!' : 'Produkti u çaktivizua!'
+    );
+}
 }   

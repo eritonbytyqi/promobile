@@ -4,6 +4,10 @@ const {
     basePrice: BASE_PRICE,
     baseOld: BASE_OLD,
     baseStock: BASE_STOCK,
+    stockDisplayText: STOCK_DISPLAY_TEXT,
+
+    allowPreorder: ALLOW_PREORDER,
+    preorderNote: PREORDER_NOTE,
     productImages,
     colorImages
 } = window.productDetailData || {
@@ -12,9 +16,14 @@ const {
     basePrice: 0,
     baseOld: null,
     baseStock: 0,
+    stockDisplayLimit: 10,
+    allowPreorder: false,
+    preorderNote: '',
     productImages: [],
     colorImages: []
 };
+
+
 
 let selColorName = null;
 let selVariantId = null;
@@ -58,7 +67,8 @@ window.selectColor = function(el, name) {
     if (lbl) lbl.textContent = name;
 
     const group = getGroup(name);
-    const firstAvail = group?.storages?.find(s => s.stock > 0) || group?.storages?.[0] || null;
+   const firstAvail = group?.storages?.find(s => s.stock > 0 || ALLOW_PREORDER) || group?.storages?.[0] || null;
+
     if (firstAvail) selVariantId = firstAvail.id;
 
     renderStorages(group);
@@ -113,7 +123,7 @@ function renderStorages(group) {
 
     storages.forEach((sv, i) => {
         const extra = sv.extra_price ?? 0;
-        const isOut = sv.stock <= 0;
+        const isOut = sv.stock <= 0 && !ALLOW_PREORDER;
         const isActive = sv.id === selVariantId || (!selVariantId && i === 0);
 
         const btn = document.createElement('div');
@@ -124,7 +134,9 @@ function renderStorages(group) {
         btn.innerHTML = `
             <span class="pm-storage-name">${sv.storage}</span>
             <span class="pm-storage-price">
-                ${isOut ? 'Jashtë stoku' : (extra > 0 ? '+' + extra.toFixed(2) + ' €' : 'Bazë')}
+                ${sv.stock <= 0 && ALLOW_PREORDER
+                    ? 'Pre-order'
+                    : (isOut ? 'Jashtë stoku' : (extra > 0 ? '+' + extra.toFixed(2) + ' €' : 'Bazë'))}
             </span>
         `;
 
@@ -167,6 +179,7 @@ function renderColorGallery(group) {
         gallery.appendChild(btn);
     });
 }
+
 
 window.switchImage = function(btn, src) {
     document.querySelectorAll('#colorGallery .pm-thumb').forEach(b => b.classList.remove('active'));
@@ -238,47 +251,56 @@ function refreshUI() {
         badgeEl.style.display = 'none';
     }
 
-    const dot = document.getElementById('stockDot');
-    const txt = document.getElementById('stockText');
+  const dot = document.getElementById('stockDot');
+const txt = document.getElementById('stockText');
 
-    if (dot && txt) {
-        dot.className = 'pm-stock-dot';
-        if (stock > 10) {
-            dot.classList.add('in');
-            txt.textContent = 'Në stok — ' + stock + ' të mbetur';
-        } else if (stock > 0) {
-            dot.classList.add('low');
-            txt.textContent = 'Vetëm ' + stock + ' të mbetur!';
-        } else {
-            dot.classList.add('out');
-            txt.textContent = 'Jashtë stoku';
-        }
+if (dot && txt) {
+    dot.className = 'pm-stock-dot';
+
+    if (STOCK_DISPLAY_TEXT && STOCK_DISPLAY_TEXT.trim() !== '') {
+        dot.classList.add(stock > 0 ? 'in' : (ALLOW_PREORDER ? 'low' : 'out'));
+        txt.textContent = STOCK_DISPLAY_TEXT;
+    } else if (stock > 0) {
+        dot.classList.add('low');
+        txt.textContent = 'Vetëm ' + stock + ' të mbetur!';
+    } else if (ALLOW_PREORDER) {
+        dot.classList.add('low');
+        txt.textContent = 'Pre-order — ' + (PREORDER_NOTE || 'Disponueshëm për porosi');
+    } else {
+        dot.classList.add('out');
+        txt.textContent = 'Jashtë stoku';
     }
+}
+
+
+
 
 const btn = document.getElementById('orderBtn');
 const btnTxt = document.getElementById('orderBtnText');
 
 if (btn && btnTxt) {
-   const hasVariants = colorGroups.length > 0;
+    const hasVariants = colorGroups.length > 0;
 
-if (stock <= 0) {
-    btn.classList.add('disabled');
-    btn.disabled = true;
-    btnTxt.textContent = 'Jashtë Stoku';
-} else if (hasVariants && !selColorName) {
-    btn.classList.add('disabled');
-    btn.disabled = true;
-    btnTxt.textContent = 'Zgjedh ngjyrën';
-} else if (hasVariants && selColorName && !selVariantId) {
-    btn.classList.add('disabled');
-    btn.disabled = true;
-    btnTxt.textContent = 'Zgjedh storage-in';
-} else {
-    btn.classList.remove('disabled');
-    btn.disabled = false;
-    btnTxt.textContent = 'Shto në shportë';
+    if (hasVariants && !selColorName) {
+        btn.classList.add('disabled');
+        btn.disabled = true;
+        btnTxt.textContent = 'Zgjedh ngjyrën';
+    } else if (hasVariants && selColorName && !selVariantId) {
+        btn.classList.add('disabled');
+        btn.disabled = true;
+        btnTxt.textContent = 'Zgjedh storage-in';
+    }  else if (stock <= 0 && !ALLOW_PREORDER && !STOCK_DISPLAY_TEXT) {
+        btn.classList.add('disabled');
+        btn.disabled = true;
+        btnTxt.textContent = 'Jashtë Stoku';
+    } else {
+        btn.classList.remove('disabled');
+        btn.disabled = false;
+        btnTxt.textContent = (stock <= 0 && ALLOW_PREORDER) ? 'Pre-order' : 'Shto në shportë';
+    }
 }
-}
+
+
     const toast = document.getElementById('variantToast');
     const toastTxt = document.getElementById('variantToastText');
     if (!toast || !toastTxt) return;

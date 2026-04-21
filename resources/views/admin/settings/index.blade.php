@@ -423,34 +423,7 @@
             </div>
         </div>
 
-        {{-- SERBI --}}
-        <div class="sw-section">
-            <div class="sw-section-head">
-                <span class="label">🇷🇸 Serbi</span>
-            </div>
-            <div class="sw-section-body">
-                <div class="sw-grid3">
-                    <div class="sw-field">
-                        <label>Çmimi Minimal për Falas (€)</label>
-                        <input type="number" name="shipping_serbia_free_min"
-                               value="{{ $settings['shipping_serbia_free_min'] ?? '200' }}"
-                               min="0" step="1" placeholder="200">
-                    </div>
-                    <div class="sw-field">
-                        <label>Kostoja e Dërgesës (€)</label>
-                        <input type="number" name="shipping_serbia_cost"
-                               value="{{ $settings['shipping_serbia_cost'] ?? '10' }}"
-                               min="0" step="0.50" placeholder="10">
-                    </div>
-                    <div class="sw-field">
-                        <label>Teksti Dërgesa Falas</label>
-                        <input type="text" name="shipping_serbia_free_text"
-                               value="{{ $settings['shipping_serbia_free_text'] ?? 'Dërgesa Falas' }}"
-                               placeholder="Dërgesa Falas">
-                    </div>
-                </div>
-            </div>
-        </div>
+      
 
         <div class="sw-save-row">
             <button type="submit" class="btn-save">

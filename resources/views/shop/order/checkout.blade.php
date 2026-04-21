@@ -225,10 +225,10 @@
 
                         <div class="order-divider"></div>
 
-                        <div class="order-row total">
-                            <span>Totali</span>
-                            <span>{{ number_format($total, 2) }} €</span>
-                        </div>
+                    <div class="order-row total">
+    <span>Totali</span>
+    <span id="totalDisplay">{{ number_format($total, 2) }} €</span>
+</div>
                     </div>
 
                     <button type="submit" class="checkout-btn">
@@ -267,20 +267,21 @@ const freeMin = {
     'Shqipëri': {{ $settings['shipping_albania_free_min']   ?? 150 }},
     'Maqedoni': {{ $settings['shipping_macedonia_free_min'] ?? 200 }},
 };
-
 function updateShipping(country) {
     const min  = freeMin[country] ?? 0;
     const cost = (min > 0 && baseTotal >= min) ? 0 : (shippingRates[country] ?? 0);
 
     document.getElementById('shippingCost').value = cost;
 
-    const display = document.getElementById('shippingDisplay');
-    const note    = document.getElementById('shippingNote');
-    const noteTxt = document.getElementById('shippingNoteText');
+    const display   = document.getElementById('shippingDisplay');
+    const note      = document.getElementById('shippingNote');
+    const noteTxt   = document.getElementById('shippingNoteText');
+    const totalDisp = document.getElementById('totalDisplay'); // 👈 shto këtë
 
     if (!country) {
         display.innerHTML  = '<i class="fa-solid fa-truck" style="font-size:11px;"></i> Zgjedh shtetin';
         note.style.display = 'none';
+        totalDisp.textContent = baseTotal.toFixed(2) + ' €'; // 👈
         return;
     }
 
@@ -292,6 +293,8 @@ function updateShipping(country) {
         noteTxt.textContent = 'Kostoja e dërgesës për ' + country + ' është ' + cost.toFixed(2) + ' €.';
         note.style.display = 'block';
     }
+
+    totalDisp.textContent = (baseTotal + cost).toFixed(2) + ' €'; // 👈 shto këtë
 }
 
 document.addEventListener('DOMContentLoaded', function() {

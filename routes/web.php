@@ -93,6 +93,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get    ('products/{uuid}/edit',                   [ProductsController::class, 'edit'])->name('products.edit');
     Route::put    ('products/{uuid}',                        [ProductsController::class, 'update'])->name('products.update');
     Route::patch  ('products/{uuid}',                        [ProductsController::class, 'update']);
+    Route::patch  ('products/{uuid}/toggle',                 [ProductsController::class, 'toggle'])->name('products.toggle'); 
     Route::delete ('products/{uuid}',                        [ProductsController::class, 'destroy'])->name('products.destroy');
     Route::delete ('products/{uuid}/images/{image}',         [ProductsController::class, 'deleteImage'])->name('products.images.delete');
     Route::post   ('products/{uuid}/images/{image}/primary', [ProductsController::class, 'setPrimaryImage'])->name('products.images.primary');

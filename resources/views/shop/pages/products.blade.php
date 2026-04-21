@@ -11,21 +11,20 @@
 <div class="shop-wrap">
 
     {{-- HEADER --}}
-    <div class="shop-header">
-        <h1>
-            @if(request('search'))
-                Rezultatet për "<span>{{ request('search') }}</span>"
-            @elseif(request('featured'))
-                Favoritet <span>Favoritet</span>
-            @elseif(request('category') && $activeCategory)
-    <span>{{ $activeCategory->name }}</span>
-            @else
-                Të gjitha <span>Produktet</span>
-            @endif
-        </h1>
-        <p>{{ $products->total() }} produkte gjithsej</p>
-    </div>
-
+   <div class="shop-header">
+    <h1>
+        @if(request('search') && trim(request('search')) !== '')
+            Rezultatet për "<span>{{ request('search') }}</span>"
+        @elseif(request('featured'))
+            <span>Favoritet</span>
+        @elseif(request('category') && $activeCategory)
+            <span>{{ $activeCategory->name }}</span>
+        @else
+            Të gjitha <span>Produktet</span>
+        @endif
+    </h1>
+    <p>{{ $products->total() }} produkte gjithsej</p>
+</div>
     {{-- FILTERS --}}
     <div class="filters-bar">
         <div class="filters-left">

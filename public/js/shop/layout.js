@@ -106,24 +106,27 @@ function refreshCartUI(data) {
     const body = document.getElementById('csBody');
     if (body && data.html) body.innerHTML = data.html;
 
-     const shippingEl = document.querySelector('.cs-shipping');
-    if (shippingEl && data.total !== undefined) {
-        const freeMin  = parseFloat(document.querySelector('meta[name="shipping-free-min"]')?.content || 100);
-        const cost     = parseFloat(document.querySelector('meta[name="shipping-cost"]')?.content || 2);
-        const freeText = document.querySelector('meta[name="shipping-free-text"]')?.content || 'Dërgesa Falas';
-        const name     = document.querySelector('meta[name="shipping-name"]')?.content || 'Kosovë';
-        const total    = parseFloat(data.total.replace(',', '.'));
+  const shippingEl = document.querySelector('.cs-shipping');
+if (shippingEl && data.total !== undefined) {
+    const freeMin  = parseFloat(document.querySelector('meta[name="shipping-free-min"]')?.content || 100);
+    const cost     = parseFloat(document.querySelector('meta[name="shipping-cost"]')?.content || 2);
+    const freeText = document.querySelector('meta[name="shipping-free-text"]')?.content || 'Dërgesa Falas';
+    const name     = document.querySelector('meta[name="shipping-name"]')?.content || 'Kosovë';
 
-    const country  = document.querySelector('meta[name="shipping-flag"]')?.content || 'kosovo';
-const flagHtml = getFlagHtml(country);
+    const rawTotal = String(data.total).replace(/,/g, '');
+    const total = parseFloat(rawTotal) || 0;
 
-if (total >= freeMin) {
-    shippingEl.innerHTML = `${flagHtml} ${freeText} — ${name}`;
-} else {
-    const diff = (freeMin - total).toFixed(2);
-    shippingEl.innerHTML = `${flagHtml} Dërgesa ${name} ${cost.toFixed(2)} € — shto ${diff} € për falas`;
-}
+    const country = document.querySelector('meta[name="shipping-flag"]')?.content || 'kosovo';
+    const flagHtml = getFlagHtml(country);
+
+    if (total >= freeMin) {
+        shippingEl.innerHTML = `${flagHtml} ${freeText} — ${name}`;
+    } else {
+        const diff = (freeMin - total).toFixed(2);
+        shippingEl.innerHTML = `${flagHtml} Dërgesa ${name} ${cost.toFixed(2)} € — shto ${diff} € për falas`;
     }
+}
+
 }
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCart(); });

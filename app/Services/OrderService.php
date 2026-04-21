@@ -28,7 +28,7 @@ class OrderService
             'shipping_address' => $request->shipping_address,
             'city'             => $request->city,
             'notes'            => $request->notes,
-            'status'           => $request->payment_method === 'bank' ? 'awaiting_payment' : 'pending',
+            'status' => 'pending',
             'payment_method'   => $request->payment_method,
             'total_amount'     => $total + $shippingCost,
         ]);

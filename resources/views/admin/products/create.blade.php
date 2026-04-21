@@ -4,7 +4,7 @@
 @section('page-title', isset($product) ? 'Edito Produktin' : 'Produkt i Ri')
 
 @section('breadcrumb')
-    <a href="{{ url('/') }}">Dashboard</a>
+    <a href="{{ url('/admin') }}">Dashboard</a>
     <i class="fa-solid fa-chevron-right" style="font-size:9px;"></i>
     <a href="{{ url('/admin/products') }}">Produktet</a>
     <i class="fa-solid fa-chevron-right" style="font-size:9px;"></i>
@@ -98,19 +98,72 @@
                             <input type="number" name="sale_price" step="0.01" class="form-control"
                                    value="{{ old('sale_price', $product->sale_price ?? '') }}" placeholder="0.00">
                         </div>
-                        <div class="form-group">
+                    <div class="form-group">
                             <label class="form-label">Stoku Bazë</label>
-                            <input type="number" name="stock" class="form-control"
-                                   value="{{ old('stock', $product->stock ?? 0) }}" placeholder="0">
+                            <input type="number" name="stock" id="stockInput" class="form-control"
+                                   value="{{ old('stock', $product->stock ?? 0) }}" placeholder="0"
+                                   oninput="checkLowStock()">
+                        </div>
+                   <!-- <div class="form-group">
+     <label class="form-label">Pragu i Stokut të Ulët</label>
+    <input type="text" name="low_stock_threshold" id="lowStockThreshold" class="form-control"
+           value="{{ old('low_stock_threshold', $product->low_stock_threshold ?? 10) }}"
+           placeholder="10">
+</div> -->
+<div class="form-group">
+    <label class="form-label">Teksti i stokut për klientin</label>
+    <input type="text" name="stock_display_text" class="form-control"
+           value="{{ old('stock_display_text', $product->stock_display_text ?? '') }}"
+           placeholder="p.sh. Mbi 10 copë">
+</div>
+
+
+
+                    </div>
+
+                    <!-- {{-- Low stock warning --}}
+                    <div id="lowStockWarning" class="hint-box"
+                         style="display:none;background:rgba(230,57,70,0.08);border-color:rgba(230,57,70,0.25);color:var(--accent);margin-bottom:10px;">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        Stoku është <strong id="lowStockVal"></strong> — nën pragun e alarmit!
+                    </div> -->
+
+                    {{-- Pre-order toggle --}}
+                    <div class="toggle-row" style="border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:10px;">
+                        <div>
+                            <div class="toggle-label-title">
+                                <i class="fa-solid fa-clock" style="color:#7c3aed;"></i>
+                                Lejo Pre-order
+                            </div>
+                            <div class="toggle-label-sub">Klientët mund të porosisin edhe pa stok</div>
+                        </div>
+                        <label class="toggle">
+                            <input type="hidden" name="allow_preorder" value="0">
+                            <input type="checkbox" name="allow_preorder" id="allowPreorder" value="1"
+                                   {{ old('allow_preorder', $product->allow_preorder ?? false) ? 'checked' : '' }}
+                                   onchange="togglePreorderNote()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+
+                    {{-- Pre-order note --}}
+                    <div id="preorderNoteWrap"
+                         style="{{ old('allow_preorder', $product->allow_preorder ?? false) ? '' : 'display:none;' }}">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label">Shënim për Pre-order</label>
+                            <input type="text" name="preorder_note" class="form-control"
+                                   value="{{ old('preorder_note', $product->preorder_note ?? '') }}"
+                                   placeholder="p.sh. Dërgesa brenda 2–3 javësh">
                         </div>
                     </div>
-                    <div class="hint-box">
+
+                 <div class="hint-box">
                         <i class="fa-solid fa-circle-info"></i>
                         Nëse shton variante më poshtë, çmimi i variantit do zëvendësojë këtë çmim bazë.
                     </div>
                 </div>
             </div>
-
+             
             {{-- ── Galeria e Fotove ── --}}
             <div class="card">
                 <div class="card-header">
@@ -541,12 +594,14 @@
                             </div>
                             <div class="toggle-label-sub">Shfaqet në seksionin kryesor</div>
                         </div>
-                        <label class="toggle">
-                            <input type="hidden" name="featured" value="0">
-                            <input type="checkbox" name="featured" value="1"
-                                   {{ old('featured', $product->featured ?? false) ? 'checked' : '' }}>
-                            <span class="toggle-slider"></span>
-                        </label>
+  <label class="toggle">
+    <input type="hidden" name="is_featured" value="0">
+    <input type="checkbox" name="is_featured" value="1"
+           {{ old('is_featured', $product->is_featured ?? false) ? 'checked' : '' }}>
+    <span class="toggle-slider"></span>
+</label>
+
+
                     </div>
                     <div class="toggle-row">
                         <div>
